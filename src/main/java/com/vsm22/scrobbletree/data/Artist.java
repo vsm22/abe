@@ -1,39 +1,29 @@
 package com.vsm22.scrobbletree.data;
 
 import java.util.List;
+import java.util.Map;
 
 public class Artist {
-	String name = null;
-	String url = null;
-	String imageSmallUrl = null;
-	String imageMediumUrl = null;
-	String imageLargeUrl = null;
-	String bioSummary = null;
-	String bioContent = null;
-	List<Tag> tags = null;
-	List<Artist> similarArtists = null;
+	private String name;
+	private String url;
+	private String imageSmallUrl;
+	private String imageMediumUrl;
+	private String imageLargeUrl;
+	private String bioSummary;
+	private String bioContent;
+	private List<Tag> tags;
+	private List<Artist> similarArtists;
 	
-	public Artist(String name, String url, String imageSmallUrl, String imageMediumUrl, String imageLargeUrl,
-			String bioSummary, String bioContent, List<Tag> tags, List<Artist> similarArtists) {
-		super();
-		this.name = name;
-		this.url = url;
-		this.imageSmallUrl = imageSmallUrl;
-		this.imageMediumUrl = imageMediumUrl;
-		this.imageLargeUrl = imageLargeUrl;
-		this.bioSummary = bioSummary;
-		this.bioContent = bioContent;
-		this.tags = tags;
-		this.similarArtists = similarArtists;
-	}
-
-	public Artist(String name, String url, String imageSmallUrl, String imageMediumUrl, String imageLargeUrl) {
-		super();
-		this.name = name;
-		this.url = url;
-		this.imageSmallUrl = imageSmallUrl;
-		this.imageMediumUrl = imageMediumUrl;
-		this.imageLargeUrl = imageLargeUrl;
+	public Artist(Map<String, Object> args) {
+		this.name = (args.containsKey("name")) ? (String) args.get("name") : null;
+		this.url = (args.containsKey("url")) ? (String) args.get("url") : null;
+		this.imageSmallUrl = (args.containsKey("imageSmallUrl")) ? (String) args.get("imageSmallUrl") : null;
+		this.imageMediumUrl = (args.containsKey("imageMediumUrl")) ? (String) args.get("imageMediumUrl") : null;
+		this.imageLargeUrl = (args.containsKey("imageLargeUrl")) ? (String) args.get("imageLargeUrl") : null;
+		this.bioSummary = (args.containsKey("bioSummary")) ? (String) args.get("bioSummary") : null;
+		this.bioContent = (args.containsKey("bioContent")) ? (String) args.get("bioContent") : null;
+		this.tags = (args.containsKey("tags")) ? (List<Tag>) args.get("tags") : null;
+		this.similarArtists = (args.containsKey("similarArtists")) ? (List<Artist>) args.get("similarArtists") : null;
 	}
 	
 	public String getName() {
@@ -83,40 +73,26 @@ public class Artist {
 		String jsonResult = "";
 		
 		jsonResult += "{ "
-				+ "\"artist\" { "
-  				+ "\"name\": " + "\"" + this.name + "\""
-  				+ ", \"url\": " + this.url
-  				+ ", \"imageSmallUrl\": " + "\"" + this.imageSmallUrl + "\""
-  				+ ", \"imageMediumUrl\": " + "\"" + this.imageMediumUrl + "\""
-  				+ ", \"imageLargeUrl\": " + "\"" + this.imageLargeUrl + "\"";
-  	
-  	if (this.bioSummary != null) {
-  		jsonResult += ", \"bioSummary\": " + "\"" + this.bioSummary + "\"";
-  	}
-  	
-  	if (this.bioContent != null) {
-  		jsonResult += ", \"bioContent\": " + "\"" + this.bioContent + "\"";
-  	}
-				
+  				+ "\"name\": " + "\"" + this.name + "\"";
+  		if (this.url != null) jsonResult += ", \"url\": " + this.url;
+  		if (this.imageSmallUrl != null) jsonResult += ", \"imageSmallUrl\": " + "\"" + this.imageSmallUrl + "\"";
+  		if (this.imageMediumUrl != null) jsonResult += ", \"imageMediumUrl\": " + "\"" + this.imageMediumUrl + "\"";
+  		if (this.imageLargeUrl != null) jsonResult += ", \"imageLargeUrl\": " + "\"" + this.imageLargeUrl + "\"";
+	  	if (this.bioSummary != null) jsonResult += ", \"bioSummary\": " + "\"" + this.bioSummary + "\"";
+	  	if (this.bioContent != null) jsonResult += ", \"bioContent\": " + "\"" + this.bioContent + "\"";
+					
 		if (this.tags != null && this.tags.size() > 0) {
-  		jsonResult += ", \"tags\": [ ";
-  		
-  		Tag tag;
-  		
-  		for (int i = 0; i < this.tags.size() - 1; i++) {
-  			tag = this.tags.get(i); 
-  			
-  			jsonResult += "{ "
-  					+ "\"name\": " + "\"" + tag.getName() + "\""
-  					+ ", \"url\": " + "\"" + tag.getUrl() + "\""
-  					+ " }";
-  			
-  			if (i < this.tags.size() - 1) {
-  				jsonResult += ", ";
-  			}
-  		}
-  		
-  		jsonResult += "] ";
+	  		jsonResult += ", \"tags\": [ ";
+	  		
+	  		for (int i = 0; i < this.tags.size() - 1; i++) {
+	  			jsonResult += this.tags.get(i).toJson();
+	  			
+	  			if (i < this.tags.size() - 1) {
+	  				jsonResult += ", ";
+	  			}
+	  		}
+	  		
+	  		jsonResult += "] ";
 		}
 		
 		if (this.similarArtists != null && this.similarArtists.size() > 0) {
@@ -143,8 +119,7 @@ public class Artist {
 			jsonResult += "] ";
 		}
 		
-		jsonResult += "} "
-				+ "} ";
+		jsonResult += "}";
 		
 		return jsonResult;
 	}

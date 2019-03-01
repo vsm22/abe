@@ -16,4 +16,15 @@ public class Tag {
 	public String getUrl() {
 		return url;
 	}
+	
+	public String toJson() {
+		String jsonResult = "";
+		
+		jsonResult += "{ "
+			+ "\"name\": " + "\"" + this.name + "\""
+			+ ", \"url\": " + "\"" + this.url + "\""
+			+ "} ";
+		
+		return jsonResult;
+	}
 }
