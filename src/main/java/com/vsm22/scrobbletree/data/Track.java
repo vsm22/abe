@@ -6,6 +6,7 @@ import java.util.Map;
 public class Track {
 	private String name;
 	private String url;
+	private Integer duration;
 	private Artist artist;
 	private Album album;
 	private List<Tag> tags;
@@ -13,6 +14,7 @@ public class Track {
 	public Track(Map<String, Object> args) {
 		this.name = (args.containsKey("name")) ? (String) args.get("name") : null;
 		this.url = (args.containsKey("url")) ? (String) args.get("url") : null;
+		this.duration = (args.containsKey("duration")) ? (Integer) args.get("duration") : null; 
 		this.artist = (args.containsKey("artist")) ? (Artist) args.get("artist") : null;
 		this.album = (args.containsKey("album")) ? (Album) args.get("album") : null;
 		this.tags = (args.containsKey("tags")) ? (List<Tag>) args.get("tags") : null;
@@ -24,6 +26,10 @@ public class Track {
 
 	public String getUrl() {
 		return url;
+	}
+	
+	public int getDuration() {
+		return duration;
 	}
 
 	public Artist getArtist() {
@@ -42,8 +48,9 @@ public class Track {
 		String jsonResult = "";
 		
 		jsonResult += "{ "
-			+ "\"name\": " + "\"" + this.name;
-		if (this.url != null) jsonResult += ", \"url\": " + this.url;
+			+ "\"name\": " + "\"" + this.name + "\"";
+		if (this.url != null) jsonResult += ", \"url\": " + "\"" + this.url + "\"";
+		if (this.duration != null) jsonResult += ", \"duration\": " + this.duration;
 		if (this.artist != null) jsonResult += ", \"artist\": " + this.artist.toJson();
 		if (this.album != null) jsonResult += ", \"album\": " + this.album.toJson();
 		

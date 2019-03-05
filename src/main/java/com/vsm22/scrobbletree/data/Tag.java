@@ -1,12 +1,14 @@
 package com.vsm22.scrobbletree.data;
 
+import java.util.Map;
+
 public class Tag {
 	private String name;
 	private String url;
 	
-	public Tag(String name, String url) {
-		this.name = name;
-		this.url = url;
+	public Tag(Map<String, Object> args) {
+		this.name = (args.containsKey("name")) ? (String) args.get("name") : null;
+		this.url = (args.containsKey("url")) ? (String) args.get("url") : null;
 	}
 	
 	public String getName() {

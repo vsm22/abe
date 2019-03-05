@@ -1,12 +1,13 @@
 package com.vsm22.scrobbletree.data;
 
 import java.util.List;
+import java.util.Map;
 
 public class AlbumSearchResult {
 	private List<Album> albumList;
 	
-	public AlbumSearchResult(List<Album> albumList) {
-		this.albumList = albumList;
+	public AlbumSearchResult(Map<String, Object> args) {
+		this.albumList = (args.containsKey("albumList")) ? (List<Album>) args.get("albumList") : null;
 	}
 	
 	public List<Album> getAlbumList() {

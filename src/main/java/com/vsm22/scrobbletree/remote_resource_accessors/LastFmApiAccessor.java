@@ -1,4 +1,4 @@
-package com.vsm22.scrobbletree.last_fm_api_accessors;
+package com.vsm22.scrobbletree.remote_resource_accessors;
 
 
 import java.io.BufferedReader;
@@ -18,8 +18,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.vsm22.scrobbletree.RemoteResourceAccessor;
-import com.vsm22.scrobbletree.RemoteResourceAttributeLoader;
 import com.vsm22.scrobbletree.data.Artist;
 import com.vsm22.scrobbletree.data.ArtistSearchResult;
 import com.vsm22.scrobbletree.data.Tag;
@@ -44,7 +42,6 @@ public class LastFmApiAccessor {
 		}
 	}
 	
-
 	public static InputStream getArtistInfoStream(String artistName) throws IOException, ParserConfigurationException, SAXException {
 		String requestSpec = apiUrl 
 				+ "?method=artist.getinfo"

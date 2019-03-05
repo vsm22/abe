@@ -1,4 +1,4 @@
-package com.vsm22.scrobbletree;
+package com.vsm22.scrobbletree.remote_resource_accessors;
 
 import java.io.BufferedReader;
 import java.io.IOException;
