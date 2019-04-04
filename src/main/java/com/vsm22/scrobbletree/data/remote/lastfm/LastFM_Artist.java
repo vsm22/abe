@@ -1,12 +1,11 @@
 package com.vsm22.scrobbletree.data.remote.lastfm;
 
 import java.util.List;
-import java.util.Map;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.google.gson.Gson;
-import com.vsm22.scrobbletree.data.remote.lastfm.LastFM_Artist;
-import com.vsm22.scrobbletree.data.remote.lastfm.LastFM_Bio;
-import com.vsm22.scrobbletree.data.remote.lastfm.LastFM_Tag;
 
 import lombok.Data;
 
@@ -23,17 +22,35 @@ public class LastFM_Artist {
 	private List<LastFM_Tag> tags;
 	private List<LastFM_Artist> similarArtists;
 	
-	public LastFM_Artist(Map<String, Object> args) {
-		this.name = (args.containsKey("name")) ? (String) args.get("name") : null;
-		this.url = (args.containsKey("url")) ? (String) args.get("url") : null;
-		this.imageSmallUrl = (args.containsKey("imageSmallUrl")) ? (String) args.get("imageSmallUrl") : null;
-		this.imageMediumUrl = (args.containsKey("imageMediumUrl")) ? (String) args.get("imageMediumUrl") : null;
-		this.imageLargeUrl = (args.containsKey("imageLargeUrl")) ? (String) args.get("imageLargeUrl") : null;
-		this.imageExtraLargeUrl = (args.containsKey("imageExtraLargeUrl")) ? (String) args.get("imageExtraLargeUrl") : null;
-		this.imageMegaUrl = (args.containsKey("imageMegaUrl")) ? (String) args.get("imageMegaUrl") : null;
-		this.bio = (args.containsKey("bio")) ? (LastFM_Bio) args.get("bio") : null;
-		this.tags = (args.containsKey("tags")) ? (List<LastFM_Tag>) args.get("tags") : null;
-		this.similarArtists = (args.containsKey("similarArtists")) ? (List<LastFM_Artist>) args.get("similarArtists") : null;
+	public LastFM_Artist(Element artistElement) {	
+		NodeList nameNodeList = artistElement.getElementsByTagName("name");
+		NodeList urlNodeList = artistElement.getElementsByTagName("url");
+		NodeList imageNodeList = artistElement.getElementsByTagName("image");
+		NodeList similarArtistsNodeList = artistElement.getElementsByTagName("similar");
+		NodeList tagsNodeList = artistElement.getElementsByTagName("tags");
+		NodeList bioNodeList = artistElement.getElementsByTagName("bio");
+		
+		Element nameElement = (nameNodeList.getLength() > 0) ? (Element) nameNodeList.item(0) : null;
+		Element urlElement = (urlNodeList.getLength() > 0) ? (Element) urlNodeList.item(0) : null;
+		Element imageSmallUrlElement = (imageNodeList.getLength() > 0) ? (Element) imageNodeList.item(0) : null;
+		Element imageMediumUrlElement = (imageNodeList.getLength() > 1) ? (Element) imageNodeList.item(1) : null;
+		Element imageLargeUrlElement = (imageNodeList.getLength() > 2) ? (Element) imageNodeList.item(2) : null;
+		Element imageExtraLargeUrlElement = (imageNodeList.getLength() > 3) ? (Element) imageNodeList.item(3) : null;
+		Element imageMegaUrlElement = (imageNodeList.getLength() > 4) ? (Element) imageNodeList.item(4) : null;
+		Element similarArtistsElement = (similarArtistsNodeList.getLength() > 0) ? (Element) similarArtistsNodeList.item(0) : null;
+		Element tagsElement = (tagsNodeList.getLength() > 0) ? (Element) tagsNodeList.item(0) : null;
+		Element bioElement = (bioNodeList.getLength() > 0) ? (Element) bioNodeList.item(0) : null;
+			
+		this.name = (nameElement != null) ? nameElement.getTextContent() : null;
+		this.url = (urlElement != null) ? urlElement.getTextContent() : null;
+		this.imageSmallUrl = (imageSmallUrlElement != null) ? imageSmallUrlElement.getTextContent() : null;
+		this.imageMediumUrl = (imageMediumUrlElement != null) ? imageMediumUrlElement.getTextContent() : null;
+		this.imageLargeUrl = (imageLargeUrlElement != null) ? imageLargeUrlElement.getTextContent() : null;
+		this.imageExtraLargeUrl = (imageExtraLargeUrlElement != null) ? imageExtraLargeUrlElement.getTextContent() : null;
+		this.imageMegaUrl = (imageMegaUrlElement != null) ? imageMegaUrlElement.getTextContent() : null;
+		this.similarArtists = (similarArtistsElement != null) ? LastFM_ItemFactory.createArtistList(similarArtistsElement) : null;
+		this.tags = (tagsElement != null) ? LastFM_ItemFactory.createTagList(tagsElement) : null;
+		this.bio = (bioElement != null) ? LastFM_ItemFactory.createBio(bioElement) : null;
 	}
 	
 	public String toJson() {

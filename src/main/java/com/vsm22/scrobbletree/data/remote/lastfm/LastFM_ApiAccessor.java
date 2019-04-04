@@ -1,28 +1,14 @@
-package com.vsm22.scrobbletree.data.remote;
+package com.vsm22.scrobbletree.data.remote.lastfm;
 
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import com.vsm22.scrobbletree.data.RequestType;
-import com.vsm22.scrobbletree.data.remote.RemoteResourceAttributeLoader;
-import com.vsm22.scrobbletree.data.remote.lastfm.LastFM_Artist;
-import com.vsm22.scrobbletree.data.remote.lastfm.LastFM_ArtistSearchResult;
-import com.vsm22.scrobbletree.data.remote.lastfm.LastFM_Tag;
+import com.vsm22.scrobbletree.RequestType;
+import com.vsm22.scrobbletree.util.RemoteResourceAccessor;
+import com.vsm22.scrobbletree.util.RemoteResourceAttributeLoader;
 
 public class LastFM_ApiAccessor {	
 	private static String apiKey;
@@ -64,6 +50,12 @@ public class LastFM_ApiAccessor {
 			case GET_SIMILAR_ARTISTS:
 				requestSpec = apiUrl
 					+ "?method=artist.getSimilar"
+					+ "&artist=" + query
+					+ "&api_key=" + apiKey;
+				break;
+			case GET_ARTIST_ALBUMS:
+				requestSpec = apiUrl
+					+ "?method=artist.gettopalbums"
 					+ "&artist=" + query
 					+ "&api_key=" + apiKey;
 				break;

@@ -1,11 +1,13 @@
-package com.vsm22.scrobbletree.data.remote;
+package com.vsm22.scrobbletree.data.remote.wikimedia;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.w3c.dom.Element;
 
-import com.vsm22.scrobbletree.data.RequestType;
+import com.vsm22.scrobbletree.RequestType;
+import com.vsm22.scrobbletree.util.RemoteResourceAccessor;
+import com.vsm22.scrobbletree.util.RemoteResourceAttributeLoader;
 
 public class Wiki_ApiAccessor {	
 	private static String apiKey;

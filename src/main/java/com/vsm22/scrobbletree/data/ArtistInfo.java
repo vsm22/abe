@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.vsm22.scrobbletree.data.remote.lastfm.LastFM_Album;
 import com.vsm22.scrobbletree.data.remote.lastfm.LastFM_Artist;
 
 import lombok.Data;
@@ -16,6 +17,7 @@ public class ArtistInfo {
 	private String imageLargeUrl;
 	private String bio;
 	private List<LastFM_Artist> similarArtists;
+	private List<LastFM_Album> albumList;
 	
 	public ArtistInfo(Map<String, Object> args) {
 		this.name = (args.containsKey("name")) ? (String) args.get("name") : null;
@@ -24,6 +26,7 @@ public class ArtistInfo {
 		this.imageLargeUrl = (args.containsKey("imageLargeUrl")) ? (String) args.get("imageLargeUrl") : null;
 		this.bio = (args.containsKey("bio")) ? (String) args.get("bio") : null;
 		this.similarArtists = (args.containsKey("similarArtists")) ? (List<LastFM_Artist>) args.get("similarArtists") : null;
+		this.albumList = (args.containsKey("albumList")) ? (List<LastFM_Album>) args.get("albumList") : null;
 	}
 	
 	public String toJson() {

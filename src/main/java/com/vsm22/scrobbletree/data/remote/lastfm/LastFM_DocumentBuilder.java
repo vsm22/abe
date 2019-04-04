@@ -10,7 +10,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import com.vsm22.scrobbletree.data.DocumentExtractor;
+import com.vsm22.scrobbletree.util.DocumentExtractor;
 
 public class LastFM_DocumentBuilder {
 	
@@ -28,6 +28,10 @@ public class LastFM_DocumentBuilder {
 	
 	public static Element getAlbumSearchRootElement(InputStream is) {
 		return DocumentExtractor.getRootElementFromStream(is, "results");
+	}
+
+	public static Element getArtistAlbumsRootElement(InputStream is) {
+		return DocumentExtractor.getRootElementFromStream(is, "topalbums");
 	}
 	
 	public static Element getTrackInfoRootElement(InputStream is) {

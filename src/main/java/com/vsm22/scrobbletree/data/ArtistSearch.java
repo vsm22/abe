@@ -12,7 +12,7 @@ import lombok.Data;
 public class ArtistSearch {
 	private List<ArtistSearchItem> artistList = new ArrayList<>();
 	
-	public ArtistSearch() {	};
+	public ArtistSearch() {};
 	
 	public ArtistSearch(Map<String, Object> args) {
 		if(args.get("artistList") != null) this.artistList = (List<ArtistSearchItem>) args.get("artistList");

@@ -1,4 +1,4 @@
-package com.vsm22.scrobbletree.data;
+package com.vsm22.scrobbletree.util;
 
 import java.io.IOException;
 import java.io.InputStream;
