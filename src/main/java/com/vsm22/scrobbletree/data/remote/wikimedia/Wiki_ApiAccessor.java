@@ -17,7 +17,7 @@ public class Wiki_ApiAccessor {
 	
 	static {
 		try {
-	  		RemoteResourceAttributeLoader loader = new RemoteResourceAttributeLoader("src/main/resources/remote-resources.xml");
+	  		RemoteResourceAttributeLoader loader = new RemoteResourceAttributeLoader();
 	  		Element lastFmResourceSpec = loader.getResourceSpec("wikimedia"); 
 	  		
 	  		apiUrl = lastFmResourceSpec.getElementsByTagName("resource-url").item(0).getTextContent();

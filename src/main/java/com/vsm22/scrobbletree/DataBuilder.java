@@ -23,11 +23,12 @@ import com.vsm22.scrobbletree.data.remote.wikimedia.Wiki_Extract;
 import com.vsm22.scrobbletree.data.remote.wikimedia.Wiki_ExtractParser;
 
 public class DataBuilder {
+	private static LastFM_ApiAccessor lastFM_ApiAccessor = LastFM_ApiAccessor.getInstance();
+	
 	public static ArtistSearch createArtistSearch(String query) throws IOException {
-
-		
+	
 		// get LastFm artist search results
-		InputStream inputStream = LastFM_ApiAccessor.getResourceStream(RequestType.GET_ARTIST_SEARCH, query);
+		InputStream inputStream = lastFM_ApiAccessor.getResourceStream(RequestType.GET_ARTIST_SEARCH, query);
 		Element rootEl = (Element) LastFM_DocumentBuilder.getArtistSearchRootElement(inputStream);
 		List<LastFM_Artist> lastFM_ArtistList = LastFM_ItemFactory.createArtistList(rootEl);
 
@@ -56,12 +57,12 @@ public class DataBuilder {
 	public static ArtistInfo createArtistInfo(String query) throws IOException {
 		
 		// get LastFm artist search results
-		InputStream lfmInputStream = LastFM_ApiAccessor.getResourceStream(RequestType.GET_ARTIST_INFO, query);
+		InputStream lfmInputStream = lastFM_ApiAccessor.getResourceStream(RequestType.GET_ARTIST_INFO, query);
 		Element lfmRootEl = (Element) LastFM_DocumentBuilder.getArtistInfoRootElement(lfmInputStream);
 		LastFM_Artist lastFM_Artist = LastFM_ItemFactory.createArtist(lfmRootEl);
 
 		// get LastFM artist album search
-		InputStream lfmArtistAlbumsStream = LastFM_ApiAccessor.getResourceStream(RequestType.GET_ARTIST_ALBUMS, query);
+		InputStream lfmArtistAlbumsStream = lastFM_ApiAccessor.getResourceStream(RequestType.GET_ARTIST_ALBUMS, query);
 		Element lfmArtistAlbumsRootEl = (Element) LastFM_DocumentBuilder.getArtistAlbumsRootElement(lfmArtistAlbumsStream);
 		List<LastFM_Album> lastFM_artistAlbums = LastFM_ItemFactory.createAlbumList(lfmArtistAlbumsRootEl);
 
@@ -91,7 +92,7 @@ public class DataBuilder {
 	public static ArtistSearch createSimilarArtists(String query) throws IOException {
 
 		// get LastFM similar artists result
-		InputStream lfmInputStream = LastFM_ApiAccessor.getResourceStream(RequestType.GET_SIMILAR_ARTISTS, query);
+		InputStream lfmInputStream = lastFM_ApiAccessor.getResourceStream(RequestType.GET_SIMILAR_ARTISTS, query);
 		Element lfmRootEl = (Element) LastFM_DocumentBuilder.getSimilarArtistsRootElement(lfmInputStream);
 		List<LastFM_Artist> lfmSimilar_Artists = LastFM_ItemFactory.createArtistList(lfmRootEl);
 

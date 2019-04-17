@@ -1,6 +1,5 @@
 package com.vsm22.scrobbletree.data.remote.lastfm;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -10,27 +9,44 @@ import com.vsm22.scrobbletree.RequestType;
 import com.vsm22.scrobbletree.util.RemoteResourceAccessor;
 import com.vsm22.scrobbletree.util.RemoteResourceAttributeLoader;
 
-public class LastFM_ApiAccessor {	
-	private static String apiKey;
-	private static String apiSharedSecret;
-	private static String apiUrl;
-	private static String apiUsername;
+public class LastFM_ApiAccessor {
+	private static volatile LastFM_ApiAccessor instance;
 	
-	static {
+	private String apiKey;
+	private String apiSharedSecret;
+	private String apiUrl;
+	private String apiUsername;
+	
+	private LastFM_ApiAccessor() {
 		try {
-	  		RemoteResourceAttributeLoader loader = new RemoteResourceAttributeLoader("src/main/resources/remote-resources.xml");
+	  		RemoteResourceAttributeLoader loader = new RemoteResourceAttributeLoader();
 	  		Element lastFmResourceSpec = loader.getResourceSpec("last.fm"); 
 	  		
-	  		apiKey = lastFmResourceSpec.getElementsByTagName("resource-key").item(0).getTextContent();
-	  		apiSharedSecret = lastFmResourceSpec.getElementsByTagName("resource-shared-secret").item(0).getTextContent();
-	  		apiUrl = lastFmResourceSpec.getElementsByTagName("resource-url").item(0).getTextContent();
-	  		apiUsername = lastFmResourceSpec.getElementsByTagName("resource-username").item(0).getTextContent();
+	  		String apiKeyEnvVar = lastFmResourceSpec.getElementsByTagName("resource-key-env-var").item(0).getTextContent();
+	  		String apiSharedSecretEnvVar = lastFmResourceSpec.getElementsByTagName("resource-shared-secret-env-var").item(0).getTextContent();
+	  		
+	  		this.apiKey = System.getenv(apiKeyEnvVar);	
+	  		this.apiSharedSecret = System.getenv(apiSharedSecretEnvVar);
+	  		this.apiUrl = lastFmResourceSpec.getElementsByTagName("resource-url").item(0).getTextContent();
+	  		this.apiUsername = lastFmResourceSpec.getElementsByTagName("resource-username").item(0).getTextContent();
 		} catch (Exception e) {
 			System.err.println(e);
 		}
 	}
+	
+	public static LastFM_ApiAccessor getInstance() {
+		if (instance == null) {
+			synchronized (LastFM_ApiAccessor.class) {
+				if (instance == null) {
+					instance = new LastFM_ApiAccessor();
+				}
+			}			
+		} 
 		
-	public static InputStream getResourceStream(RequestType requestType, String query) throws IOException {
+		return instance;
+	}
+		
+	public InputStream getResourceStream(RequestType requestType, String query) throws IOException {
 		String requestSpec = "";
 		
 		switch (requestType) {
