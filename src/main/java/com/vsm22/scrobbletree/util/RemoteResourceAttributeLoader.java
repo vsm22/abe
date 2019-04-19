@@ -31,8 +31,6 @@ public class RemoteResourceAttributeLoader {
 	  	try {
 	  		ClassPathResource configResource = new ClassPathResource(fileName);
 	  		InputStream configStream = configResource.getInputStream();
-	  		
-			File remoteResourceXML = configResource.getFile();
 
 			this.remoteResourceDocument = DocumentBuilderFactory
 					.newInstance()
