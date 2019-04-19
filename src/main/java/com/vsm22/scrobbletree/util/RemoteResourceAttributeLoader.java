@@ -2,6 +2,7 @@ package com.vsm22.scrobbletree.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,13 +29,15 @@ public class RemoteResourceAttributeLoader {
 
 	public RemoteResourceAttributeLoader(String fileName) {
 	  	try {
-	  		Resource remoteResourceXMLResource = new ClassPathResource(fileName);
-			File remoteResourceXML = remoteResourceXMLResource.getFile();
+	  		ClassPathResource configResource = new ClassPathResource(fileName);
+	  		InputStream configStream = configResource.getInputStream();
+	  		
+			File remoteResourceXML = configResource.getFile();
 
 			this.remoteResourceDocument = DocumentBuilderFactory
 					.newInstance()
 					.newDocumentBuilder()
-					.parse(remoteResourceXML);
+					.parse(configStream);
 
 			this.resourceNodes = remoteResourceDocument.getElementsByTagName("resource");
 		} catch (SAXException | IOException | ParserConfigurationException e) {
