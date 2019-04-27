@@ -1,5 +1,6 @@
 package com.vsm22.scrobbletree;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -20,6 +21,8 @@ import com.vsm22.scrobbletree.data.remote.wikimedia.Wiki_ApiAccessor;
 import com.vsm22.scrobbletree.data.remote.wikimedia.Wiki_DocumentBuilder;
 import com.vsm22.scrobbletree.data.remote.wikimedia.Wiki_Extract;
 import com.vsm22.scrobbletree.data.remote.wikimedia.Wiki_ExtractParser;
+
+import com.vsm22.scrobbletree.util.RemoteResourceAccessor;
 
 /**
  * Singleton class for building the middleware data classes used for API responses
@@ -42,26 +45,30 @@ public class DataBuilder {
 			}
 
 		}
-
 		return instance;
 	}
 
 	/**
 	 * Create a data class representing the results of an Artist Search based on a query
-	 * @param query
-	 * @return
+	 * @param query - the search query (artist name)
+	 * @return - data class representing the artist search results
 	 * @throws IOException
 	 */
-	public ArtistSearch createArtistSearch(String query) throws IOException {
+	 ArtistSearch createArtistSearch(String query) throws IOException {
+		RequestType requestType = RequestType.GET_ARTIST_SEARCH;
+		 List<LastFM_Artist> lastFM_ArtistList;
 
-		// get LastFm artist search results
-		InputStream inputStream = lastFM_ApiAccessorSpec.getResourceStream(RequestType.GET_ARTIST_SEARCH, query);
-		Element rootEl = (Element) LastFM_DocumentBuilder.getArtistSearchRootElement(inputStream);
-		List<LastFM_Artist> lastFM_ArtistList = LastFM_ItemFactory.createArtistList(rootEl);
+		// get LastFM data
+		String lastFM_requestUrl = lastFM_ApiAccessorSpec.getRequestUrl(requestType, query);
+
+		try ( InputStream inputStream = new BufferedInputStream(RemoteResourceAccessor.getResponseStream(lastFM_requestUrl)) ) {
+			Element rootEl = LastFM_DocumentBuilder.getArtistSearchRootElement(inputStream);
+			lastFM_ArtistList = LastFM_ItemFactory.createArtistList(rootEl);
+		}
 
 		ArtistSearch artistSearch = new ArtistSearch();
 
-		lastFM_ArtistList.stream().forEach(artist -> {
+		lastFM_ArtistList.forEach(artist -> {
 			Map<String, Object> args = new HashMap<>();
 
 			if (artist.getName() != null) args.put("name", artist.getName());
@@ -71,7 +78,7 @@ public class DataBuilder {
 			else if (artist.getImageLargeUrl() != null) args.put("imageLargeUrl", artist.getImageLargeUrl());
 			else if (artist.getImageMediumUrl() != null) args.put("imageLargeUrl", artist.getImageMediumUrl());
 			else if (artist.getImageSmallUrl() != null) args.put("imageLargeUrl", artist.getImageSmallUrl());
-			else args.put("imageLargeUrl", new String("images/fallback1.png"));
+			else args.put("imageLargeUrl", "images/fallback1.png");
 
 			ArtistSearchItem newArtist = new ArtistSearchItem(args);
 
@@ -80,24 +87,31 @@ public class DataBuilder {
 
 		return artistSearch;
 	}
-	
-	public ArtistInfo createArtistInfo(String query) throws IOException {
-		
+
+	/**
+	 * Create a data class representing the results of an Artist Info query
+	 * @param query - the search query (artist name)
+	 * @return - data class representing the artist info
+	 * @throws IOException
+	 */
+	ArtistInfo createArtistInfo(String query) throws IOException {
+		LastFM_Artist lastFM_Artist;
+		List<LastFM_Album> lastFM_artistAlbums;
+
+		String lastFM_artistInfoUrl = lastFM_ApiAccessorSpec.getRequestUrl(RequestType.GET_ARTIST_INFO, query);
+		String lastFM_artistAlbumsUrl = lastFM_ApiAccessorSpec.getRequestUrl(RequestType.GET_ARTIST_ALBUMS, query);
+
 		// get LastFm artist search results
-		InputStream lfmInputStream = lastFM_ApiAccessorSpec.getResourceStream(RequestType.GET_ARTIST_INFO, query);
-		Element lfmRootEl = (Element) LastFM_DocumentBuilder.getArtistInfoRootElement(lfmInputStream);
-		LastFM_Artist lastFM_Artist = LastFM_ItemFactory.createArtist(lfmRootEl);
+		try (InputStream lfmInputStream = new BufferedInputStream(RemoteResourceAccessor.getResponseStream(lastFM_artistInfoUrl));
+			 InputStream lfmArtistAlbumsStream = new BufferedInputStream(RemoteResourceAccessor.getResponseStream(lastFM_artistAlbumsUrl)) ) {
 
-		// get LastFM artist album search
-		InputStream lfmArtistAlbumsStream = lastFM_ApiAccessorSpec.getResourceStream(RequestType.GET_ARTIST_ALBUMS, query);
-		Element lfmArtistAlbumsRootEl = (Element) LastFM_DocumentBuilder.getArtistAlbumsRootElement(lfmArtistAlbumsStream);
-		List<LastFM_Album> lastFM_artistAlbums = LastFM_ItemFactory.createAlbumList(lfmArtistAlbumsRootEl);
+			Element lfmRootEl = (Element) LastFM_DocumentBuilder.getArtistInfoRootElement(lfmInputStream);
+			lastFM_Artist = LastFM_ItemFactory.createArtist(lfmRootEl);
 
-		// get Wiki bio
-		InputStream wikiInputStream = Wiki_ApiAccessor.getResourceStream(RequestType.GET_ARTIST_INFO, query); 
-		Element wikiRootEl = (Element) Wiki_DocumentBuilder.getQueryRootElement(wikiInputStream);
-		Wiki_Extract wiki_Extract = Wiki_ExtractParser.parse(wikiRootEl);
-		
+			Element lfmArtistAlbumsRootEl = (Element) LastFM_DocumentBuilder.getArtistAlbumsRootElement(lfmArtistAlbumsStream);
+			lastFM_artistAlbums = LastFM_ItemFactory.createAlbumList(lfmArtistAlbumsRootEl);
+		}
+
 		Map<String, Object> args = new HashMap<>();
 		
 		if (lastFM_Artist.getName() != null) args.put("name", lastFM_Artist.getName());
@@ -107,21 +121,30 @@ public class DataBuilder {
 		else if (lastFM_Artist.getImageLargeUrl() != null) args.put("imageLargeUrl", lastFM_Artist.getImageLargeUrl());
 		else if (lastFM_Artist.getImageMediumUrl() != null) args.put("imageLargeUrl", lastFM_Artist.getImageMediumUrl());
 		else if (lastFM_Artist.getImageSmallUrl() != null) args.put("imageLargeUrl", lastFM_Artist.getImageSmallUrl());
-		else args.put("imageLargeUrl", new String("images/fallback1.png"));
+		else args.put("imageLargeUrl", "images/fallback1.png");
 		if (lastFM_Artist.getBio() != null) args.put("bio", lastFM_Artist.getBio().getContent());
 		if (lastFM_Artist.getSimilarArtists() != null) args.put("similarArtists", lastFM_Artist.getSimilarArtists());
 		if (lastFM_artistAlbums != null) args.put("albumList", lastFM_artistAlbums);
-		
-		ArtistInfo newArtistInfo = new ArtistInfo(args);
-		return newArtistInfo;
+
+		return new ArtistInfo(args);
 	}
 
-	public ArtistSearch createSimilarArtists(String query) throws IOException {
+	/**
+	 * Create a data class representing a list of similar artists
+	 * @param query - the search query (artist name)
+	 * @return - data class representing a list of similar artists
+	 * @throws IOException
+	 */
+	ArtistSearch createSimilarArtists(String query) throws IOException {
+		List<LastFM_Artist> lfmSimilar_Artists;
+
+		String lastFM_requestUrl = lastFM_ApiAccessorSpec.getRequestUrl(RequestType.GET_SIMILAR_ARTISTS, query);
 
 		// get LastFM similar artists result
-		InputStream lfmInputStream = lastFM_ApiAccessorSpec.getResourceStream(RequestType.GET_SIMILAR_ARTISTS, query);
-		Element lfmRootEl = (Element) LastFM_DocumentBuilder.getSimilarArtistsRootElement(lfmInputStream);
-		List<LastFM_Artist> lfmSimilar_Artists = LastFM_ItemFactory.createArtistList(lfmRootEl);
+		try ( InputStream lfmInputStream = new BufferedInputStream(RemoteResourceAccessor.getResponseStream(lastFM_requestUrl)) ) {
+			Element lfmRootEl = (Element) LastFM_DocumentBuilder.getSimilarArtistsRootElement(lfmInputStream);
+			lfmSimilar_Artists = LastFM_ItemFactory.createArtistList(lfmRootEl);
+		}
 
 		ArtistSearch similarArtists = new ArtistSearch();
 		

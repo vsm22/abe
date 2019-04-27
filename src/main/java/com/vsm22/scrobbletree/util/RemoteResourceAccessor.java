@@ -9,7 +9,7 @@ import java.net.URLConnection;
  * Access remote resources via HTTP and return response streams (static utility methods) 
  */
 public class RemoteResourceAccessor {
-	
+
 	public static InputStream getResponseStream(String requestUrl) throws IOException {
 		URL resourceUrl = new URL(requestUrl);	
 		URLConnection connection = resourceUrl.openConnection();	
