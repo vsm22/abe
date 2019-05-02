@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.vsm22</groupId>
-  <artifactId>scrobbletree</artifactId>
+  <groupId>vsm22</groupId>
+  <artifactId>anvil</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>scrobbletree</name>
+  <name>Anvil</name>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -49,5 +49,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	<description>An app for exploring music based on the Last.FM API</description>
+	<description></description>
 </project>
