@@ -31,13 +31,19 @@ final class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFi
             final HttpServletRequest request,
             final HttpServletResponse response) {
 
+        System.out.println("Triggered authentication filter");
+
         final String param = ofNullable(request.getHeader(AUTHORIZATION))
                 .orElse(request.getParameter("t"));
+
+        System.out.println("Param in Authentication Filter: " + param);
 
         final String token = ofNullable(param)
                 .map(value -> removeStart(value, BEARER))
                 .map(String::trim)
                 .orElseThrow(() -> new BadCredentialsException("Missing Authentication Token"));
+
+        System.out.println("Token in Authentication Filter: " + token);
 
         final Authentication auth = new UsernamePasswordAuthenticationToken(token, token);
         return getAuthenticationManager().authenticate(auth);

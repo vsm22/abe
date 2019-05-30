@@ -16,7 +16,6 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static java.util.Objects.requireNonNull;
@@ -30,10 +29,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
-            new AntPathRequestMatcher("/public")
-    );
-    private static final RequestMatcher PROTECTED_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
+    private static final RequestMatcher SECURED_URLS = new AntPathRequestMatcher("/api/secured/**");
+    private static final RequestMatcher PUBLIC_URLS = new NegatedRequestMatcher(SECURED_URLS);
 
     TokenAuthenticationProvider provider;
 
@@ -50,9 +47,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(final WebSecurity web) {
-        web.ignoring().requestMatchers(PUBLIC_URLS)
-                .and()
-                .ignoring().antMatchers("/index", "/register", "/**");
+        web.ignoring().requestMatchers(PUBLIC_URLS);
     }
 
     @Override
@@ -70,7 +65,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // ExceptionHandlingConfigurer
                 // Send back a 'FORBIDDEN' http response when you are not yet authenticated
                 .exceptionHandling()
-                .defaultAuthenticationEntryPointFor(forbiddenEntryPoint(), PROTECTED_URLS)
+                .defaultAuthenticationEntryPointFor(forbiddenEntryPoint(), SECURED_URLS)
 
                 .and()
 
@@ -95,7 +90,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     TokenAuthenticationFilter restAuthenticationFilter() throws Exception {
-        final TokenAuthenticationFilter filter = new TokenAuthenticationFilter(PROTECTED_URLS);
+        final TokenAuthenticationFilter filter = new TokenAuthenticationFilter(SECURED_URLS);
         filter.setAuthenticationManager(authenticationManager());
         filter.setAuthenticationSuccessHandler(successHandler());
         return filter;

@@ -3,16 +3,21 @@ package anvil.web;
 import anvil.security.auth.api.UserAuthenticationService;
 import anvil.security.entities.user.crud.api.UserCrudService;
 import anvil.security.entities.user.entity.User;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
-@RequestMapping("/api/auth")
+@RestController
+@RequestMapping("/api/public/auth")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class AuthenticationController {
 
     @NonNull
