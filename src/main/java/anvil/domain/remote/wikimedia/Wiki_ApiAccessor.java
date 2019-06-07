@@ -1,4 +1,4 @@
-package anvil.data.remote.wikimedia;
+package anvil.domain.remote.wikimedia;
 
 import java.io.IOException;
 import java.io.InputStream;

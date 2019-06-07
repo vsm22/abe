@@ -1,4 +1,4 @@
-package anvil.data.remote.lastfm;
+package anvil.domain.remote.lastfm;
 
 import org.w3c.dom.Element;
 

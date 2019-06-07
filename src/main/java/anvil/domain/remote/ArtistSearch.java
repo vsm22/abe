@@ -1,4 +1,4 @@
-package anvil.data;
+package anvil.domain.remote;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package anvil.data.remote.lastfm;
+package anvil.domain.remote.lastfm;
 
 import java.util.List;
 

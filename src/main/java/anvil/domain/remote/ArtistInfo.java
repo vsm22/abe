@@ -1,11 +1,11 @@
-package anvil.data;
+package anvil.domain.remote;
 
 import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
-import anvil.data.remote.lastfm.LastFM_Album;
-import anvil.data.remote.lastfm.LastFM_Artist;
+import anvil.domain.remote.lastfm.LastFM_Album;
+import anvil.domain.remote.lastfm.LastFM_Artist;
 
 import lombok.Data;
 

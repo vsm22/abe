@@ -1,4 +1,4 @@
-package anvil.web;
+package anvil.domain;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -7,21 +7,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import anvil.web.RequestType;
 import org.w3c.dom.Element;
 
-import anvil.data.ArtistInfo;
-import anvil.data.ArtistSearch;
-import anvil.data.ArtistSearchItem;
-import anvil.data.remote.lastfm.LastFM_Album;
-import anvil.data.remote.lastfm.LastFM_ApiAccessorSpec;
-import anvil.data.remote.lastfm.LastFM_Artist;
-import anvil.data.remote.lastfm.LastFM_DocumentBuilder;
-import anvil.data.remote.lastfm.LastFM_ItemFactory;
+import anvil.domain.remote.ArtistInfo;
+import anvil.domain.remote.ArtistSearch;
+import anvil.domain.remote.ArtistSearchItem;
+import anvil.domain.remote.lastfm.LastFM_Album;
+import anvil.domain.remote.lastfm.LastFM_ApiAccessorSpec;
+import anvil.domain.remote.lastfm.LastFM_Artist;
+import anvil.domain.remote.lastfm.LastFM_DocumentBuilder;
+import anvil.domain.remote.lastfm.LastFM_ItemFactory;
 
 import anvil.util.RemoteResourceAccessor;
 
 /**
- * Singleton class for building the middleware data classes used for API responses
+ * Singleton class for building the middleware model classes used for API responses
  */
 public class DataBuilder {
 	
@@ -46,16 +47,16 @@ public class DataBuilder {
 	}
 
 	/**
-	 * Create a data class representing the results of an Artist Search based on a query
+	 * Create a model class representing the results of an Artist Search based on a query
 	 * @param query - the search query (artist name)
-	 * @return - data class representing the artist search results
+	 * @return - model class representing the artist search results
 	 * @throws IOException
 	 */
-	 ArtistSearch createArtistSearch(String query) throws IOException {
+	 public ArtistSearch createArtistSearch(String query) throws IOException {
 		RequestType requestType = RequestType.GET_ARTIST_SEARCH;
 		 List<LastFM_Artist> lastFM_ArtistList;
 
-		// get LastFM data
+		// get LastFM model
 		String lastFM_requestUrl = lastFM_ApiAccessorSpec.getRequestUrl(requestType, query);
 
 		try ( InputStream inputStream = new BufferedInputStream(RemoteResourceAccessor.getResponseStream(lastFM_requestUrl)) ) {
@@ -86,12 +87,12 @@ public class DataBuilder {
 	}
 
 	/**
-	 * Create a data class representing the results of an Artist Info query
+	 * Create a model class representing the results of an Artist Info query
 	 * @param query - the search query (artist name)
-	 * @return - data class representing the artist info
+	 * @return - model class representing the artist info
 	 * @throws IOException
 	 */
-	ArtistInfo createArtistInfo(String query) throws IOException {
+	public ArtistInfo createArtistInfo(String query) throws IOException {
 		LastFM_Artist lastFM_Artist;
 		List<LastFM_Album> lastFM_artistAlbums;
 
@@ -127,12 +128,12 @@ public class DataBuilder {
 	}
 
 	/**
-	 * Create a data class representing a list of similar artists
+	 * Create a model class representing a list of similar artists
 	 * @param query - the search query (artist name)
-	 * @return - data class representing a list of similar artists
+	 * @return - model class representing a list of similar artists
 	 * @throws IOException
 	 */
-	ArtistSearch createSimilarArtists(String query) throws IOException {
+	public ArtistSearch createSimilarArtists(String query) throws IOException {
 		List<LastFM_Artist> lfmSimilar_Artists;
 
 		String lastFM_requestUrl = lastFM_ApiAccessorSpec.getRequestUrl(RequestType.GET_SIMILAR_ARTISTS, query);
