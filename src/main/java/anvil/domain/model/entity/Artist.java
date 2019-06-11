@@ -13,6 +13,7 @@ import java.util.List;
 public class Artist {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -31,9 +32,6 @@ public class Artist {
     @Column(name = "bio")
     private String bio;
 
-    @ManyToMany
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "artist")
     private List<Album> albums;
-
-    @ManyToMany
-    private List<Artist> similarArtists;
 }

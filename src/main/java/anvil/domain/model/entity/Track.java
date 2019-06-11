@@ -11,6 +11,18 @@ import javax.persistence.*;
 @Table(name = "tracks")
 public class Track {
 
-    @EmbeddedId
-    private TrackId id;
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "track_name")
+    private String trackName;
+
+    @Column(name = "track_number")
+    private Integer trackNumber;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "album_id", referencedColumnName = "id")
+    private Album album;
 }

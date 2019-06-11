@@ -1,8 +1,6 @@
 package anvil.domain.model.usercollections.artist.entity;
 
 import anvil.domain.model.entity.Artist;
-import anvil.domain.model.usercollections.artist.embeddable.UserArtistCollectionId;
-import anvil.security.entities.user.entity.User;
 import lombok.Value;
 
 import javax.persistence.*;
@@ -13,13 +11,12 @@ import javax.persistence.*;
 public class UserArtistCollectionEntry {
 
     @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumns({
-            @JoinColumn(name = "username", referencedColumnName = "username"),
-            @JoinColumn(name = "collection_name", referencedColumnName = "collection_name")
-    })
+    @JoinColumn(name = "collection_id", referencedColumnName = "id")
     private UserArtistCollection userArtistCollection;
 
     @ManyToOne
