@@ -29,8 +29,11 @@ public class Artist {
     @Column(name = "image_large_url")
     private String imageLargeUrl;
 
-    @Column(name = "bio")
-    private String bio;
+    @Column(name = "bio_summary")
+    private String bioSummary;
+
+    @Column(name = "bio_content")
+    private String bioContent;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "artist")
     private List<Album> albums;

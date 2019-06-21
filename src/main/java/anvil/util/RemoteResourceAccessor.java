@@ -11,6 +11,7 @@ import java.net.URLConnection;
 public class RemoteResourceAccessor {
 
 	public static InputStream getResponseStream(String requestUrl) throws IOException {
+
 		URL resourceUrl = new URL(requestUrl);	
 		URLConnection connection = resourceUrl.openConnection();	
 		return connection.getInputStream();
