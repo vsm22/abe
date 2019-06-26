@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Value;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Value
 @Builder
@@ -25,4 +26,7 @@ public class Track {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "album_id", referencedColumnName = "id")
     private Album album;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "track_id")
+    private List<TrackTag> tags;
 }

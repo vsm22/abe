@@ -5,10 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import anvil.domain.model.entity.*;
-import anvil.domain.remote.lastfm.entity.LfmAlbumSearchResult;
-import anvil.domain.remote.lastfm.entity.LfmArtistSearchResult;
-import anvil.domain.remote.lastfm.entity.LfmBio;
-import anvil.domain.remote.lastfm.entity.LfmImage;
+import anvil.domain.remote.lastfm.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -82,7 +79,43 @@ public class ModelDataMapper {
 
 		lfmSearchResult.getAlbumList().forEach(
 
-				lfmAlbum-> {}
+				lfmAlbum-> {
+
+				    String albumName = "";
+				    String artistName = "";
+				    String date = "";
+				    String imageSmallUrl = "";
+				    String imageMediumUrl = "";
+				    String imageLargeUrl = "";
+
+				    albumName = lfmAlbum.getName();
+				    artistName = lfmAlbum.getArtistName();
+				    date = lfmAlbum.getReleaseDate();
+
+				    List<LfmImage> lfmImages = lfmArtist.getImages();
+				    if (lfmImages != null) {
+                        imageSmallUrl = lfmImages.stream()
+                                .filter(img -> img.getSize() == "small")
+                                .map(img -> img.getUrl())
+                                .findFirst().orElseGet(() -> null);
+                        imageMediumUrl = lfmImages.stream()
+                                .filter(img -> img.getSize() == "medium")
+                                .map(img -> img.getUrl())
+                                .findFirst().orElseGet(() -> null);
+                        imageLargeUrl = lfmImages.stream()
+                                .filter(img -> { return img.getSize() == "large" || img.getSize() == null; })
+                                .map(img -> img.getUrl())
+                                .findFirst().orElseGet(() -> null);
+                    }
+
+                    List<LfmTag>
+
+
+				    Artist albumArtist = Artist.builder()
+                            .
+
+
+                }
 		);
 
 		AlbumSearchResult searchResult = AlbumSearchResult.builder()

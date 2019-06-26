@@ -29,4 +29,7 @@ public class Album {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "artist_id")
     private Artist artist;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "album_id")
+    private List<AlbumTag> tags;
 }

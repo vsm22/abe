@@ -37,4 +37,7 @@ public class Artist {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "artist")
     private List<Album> albums;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "artist_id")
+    private List<ArtistTag> tags;
 }
