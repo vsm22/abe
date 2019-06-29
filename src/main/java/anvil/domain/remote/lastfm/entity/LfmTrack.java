@@ -16,6 +16,9 @@ public class LfmTrack {
     @JacksonXmlProperty(localName = "name")
     private String name;
 
+    @JacksonXmlProperty(isAttribute = true, localName = "rank")
+    private Integer position;
+
     @JacksonXmlProperty(localName = "url")
     private String url;
 
@@ -23,7 +26,7 @@ public class LfmTrack {
     private Long duration;
 
     @JacksonXmlProperty(localName = "artist")
-    private LfmArtist artist;
+    private String artistName;
 
     @JacksonXmlProperty(localName = "album")
     private LfmAlbum album;

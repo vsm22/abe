@@ -1,5 +1,7 @@
 package anvil.web;
+import anvil.domain.model.entity.AlbumSearchResult;
 import anvil.domain.model.entity.ArtistSearchResult;
+import anvil.domain.model.entity.TrackSearchResult;
 import anvil.domain.services.LastfmApiClient;
 import anvil.domain.services.ModelDataMapper;
 import anvil.domain.services.api.RemoteApiClient;
@@ -22,11 +24,9 @@ public class PublicRestController {
 	@Qualifier("jsonMapper")
 	ObjectMapper jsonMapper;
 
-	@RequestMapping(value="/getArtistSearch")
+	@RequestMapping(value = "/getArtistSearch")
 	@Cacheable("artistSearchCache")
-	public String getArtistSearch(@RequestParam(value="query", required=true) String query) throws Exception {
-		
-		System.out.println("LfmArtist search request issued, query= " + query);
+	public String getArtistSearch(@RequestParam(value = "query", required = true) String query) throws Exception {
 
 		try {
 
@@ -41,7 +41,43 @@ public class PublicRestController {
 
 		}
 	}
-	
+
+	@RequestMapping(value = "/getAlbumSearch")
+    @Cacheable("albumSearchCache")
+    public String getAlbumSearch(@RequestParam(value = "query", required = true) String query) throws Exception {
+
+	    try {
+
+            AlbumSearchResult searchResult = remoteApiClient.getAlbumSearch(query);
+            String json = jsonMapper.writeValueAsString(searchResult);
+            return json;
+
+        } catch (Exception e) {
+
+            System.err.println(e);
+            return null;
+
+        }
+    }
+
+    @RequestMapping(value = "/getTrackSearch")
+    @Cacheable("trackSearchCache")
+    public String getTrackSearch(@RequestParam(value = "query", required = true) String query) throws Exception {
+
+        try {
+
+            TrackSearchResult searchResult = remoteApiClient.getTrackSearch(query);
+            String json = jsonMapper.writeValueAsString(searchResult);
+            return json;
+
+        } catch (Exception e) {
+
+            System.err.println(e);
+            return null;
+
+        }
+    }
+
 //	@RequestMapping(value="/getArtistInfo")
 //	@Cacheable("artistInfoCache")
 //	public String getArtistInfo(@RequestParam(value="query", required=true) String query) throws Exception {

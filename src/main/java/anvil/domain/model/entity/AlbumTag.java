@@ -1,15 +1,20 @@
 package anvil.domain.model.entity;
 
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 
 import javax.persistence.*;
 
-@Value
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Entity
 @Table(name = "album_tags")
 public class AlbumTag {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "album_id", referencedColumnName = "id")

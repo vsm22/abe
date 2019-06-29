@@ -1,13 +1,19 @@
 package anvil.domain.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
 
-@Value
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "artists")
 public class Artist {
@@ -38,6 +44,6 @@ public class Artist {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "artist")
     private List<Album> albums;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "artist_id")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "artist")
     private List<ArtistTag> tags;
 }

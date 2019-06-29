@@ -3,6 +3,7 @@ package anvil.domain.services;
 import anvil.domain.model.entity.*;
 import anvil.domain.remote.lastfm.entity.LfmAlbumSearchResult;
 import anvil.domain.remote.lastfm.entity.LfmArtistSearchResult;
+import anvil.domain.remote.lastfm.entity.LfmTrackSearchResult;
 import anvil.domain.services.api.RemoteApiClient;
 import com.ctc.wstx.stax.WstxInputFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -101,8 +102,23 @@ public class LastfmApiClient implements RemoteApiClient {
     }
 
     @Override
-    public TrackSearchResult getTrackSearch(String query) {
-        return null;
+    public TrackSearchResult getTrackSearch(String query) throws RestClientException, XMLStreamException, IOException {
+
+        String response = restTemplate.getForObject(apiUrl
+                + "?method=track.search"
+                + "&track=" + query
+                + "&api_key=" + apiKey, String.class);
+
+        // Use only part of the response between <results> tags
+        response = "<results" + StringUtils.substringBetween(response, "<results", "</results>") + "</results>";
+
+        response = fixXml(response);
+
+        LfmTrackSearchResult lfmTrackSearchResult = xmlMapper.readValue(response, LfmTrackSearchResult.class);
+
+        TrackSearchResult trackSearchResult = modelDataMapper.map(lfmTrackSearchResult);
+
+        return trackSearchResult;
     }
 
     @Override
