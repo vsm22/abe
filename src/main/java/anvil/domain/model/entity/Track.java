@@ -1,6 +1,7 @@
 package anvil.domain.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -35,5 +36,6 @@ public class Track {
     private Artist artist;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "track")
+    @JsonManagedReference
     private List<TrackTag> tags;
 }

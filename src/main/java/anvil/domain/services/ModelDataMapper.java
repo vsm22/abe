@@ -226,4 +226,36 @@ public class ModelDataMapper {
 
 		return trackSearchResult;
 	}
+
+	public SimilarArtists map(LfmSimilarArtists lfmSimilarArtists) {
+
+		List<Artist> artistList = new ArrayList<>();
+
+		for (LfmArtist lfmArtist : lfmSimilarArtists.getArtistList()) {
+			Artist artist = map(lfmArtist);
+			artistList.add(artist);
+		}
+
+		SimilarArtists similarArtists = SimilarArtists.builder()
+				.artistList(artistList)
+				.build();
+
+		return similarArtists;
+	}
+
+	public ArtistAlbums map(LfmArtistAlbums lfmArtistAlbums) {
+
+		List<Album> albumList = new ArrayList<>();
+
+		for (LfmAlbum lfmAlbum : lfmArtistAlbums.getAlbumList()) {
+			Album album = map(lfmAlbum);
+			albumList.add(album);
+		}
+
+		ArtistAlbums artistAlbums = ArtistAlbums.builder()
+				.albumList(albumList)
+				.build();
+
+		return artistAlbums;
+	}
 }

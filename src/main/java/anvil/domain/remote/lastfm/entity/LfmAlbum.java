@@ -26,6 +26,7 @@ public class LfmAlbum {
     private String releaseDate;
 
     @JacksonXmlElementWrapper(useWrapping = false)
+    @JacksonXmlProperty(localName = "image")
     private List<LfmImage> images;
 
     @JacksonXmlElementWrapper(localName = "toptags")

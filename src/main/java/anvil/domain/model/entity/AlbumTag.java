@@ -1,5 +1,6 @@
 package anvil.domain.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -18,6 +19,7 @@ public class AlbumTag {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "album_id", referencedColumnName = "id")
+    @JsonBackReference
     private Album album;
 
     @Column(name = "tag_name")

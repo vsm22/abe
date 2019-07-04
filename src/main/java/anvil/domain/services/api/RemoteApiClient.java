@@ -10,9 +10,13 @@ public interface RemoteApiClient {
 
     public TrackSearchResult getTrackSearch(String query) throws Exception;
 
-    public Artist getArtist(String query) throws Exception;
+    public Artist getArtistInfo(String query) throws Exception;
 
-    public Album getAlbum(String query) throws Exception;
+    public Album getAlbumInfo(String query) throws Exception;
 
-    public Track getTrack(String query) throws Exception;
+    public Track getTrackInfo(String query) throws Exception;
+
+    public SimilarArtists getSimilarArtists(String query) throws Exception;
+
+    public ArtistAlbums getArtistAlbums(String query) throws Exception;
 }

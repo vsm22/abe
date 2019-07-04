@@ -17,11 +17,6 @@ public class JacksonService {
     @Bean
     @Qualifier("xmlMapper")
     public XmlMapper xmlMapper() {
-
-//        XMLInputFactory input = new WstxInputFactory();
-//        input.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
-//        XmlMapper xmlMapper = new XmlMapper(new XmlFactory(input, new WstxOutputFactory()));
-
         return new XmlMapper();
     }
 

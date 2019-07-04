@@ -20,6 +20,7 @@ public class LfmArtist {
     private String url;
 
     @JacksonXmlElementWrapper(useWrapping = false)
+    @JacksonXmlProperty(localName = "image")
     private List<LfmImage> images;
 
     @JacksonXmlProperty(localName = "image_small")

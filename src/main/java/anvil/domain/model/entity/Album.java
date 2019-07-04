@@ -1,6 +1,8 @@
 package anvil.domain.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -40,8 +42,10 @@ public class Album {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "artist_id")
+    @JsonBackReference
     private Artist artist;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "album")
+    @JsonManagedReference
     private List<AlbumTag> tags;
 }

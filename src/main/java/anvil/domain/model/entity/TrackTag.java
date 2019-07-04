@@ -1,5 +1,6 @@
 package anvil.domain.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -18,6 +19,7 @@ public class TrackTag {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "track_id", referencedColumnName = "id")
+    @JsonBackReference
     private Track track;
 
     @Column(name = "tag_name")

@@ -1,6 +1,7 @@
 package anvil.domain.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,8 +43,10 @@ public class Artist {
     private String bioContent;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "artist")
+    @JsonManagedReference
     private List<Album> albums;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "artist")
+    @JsonManagedReference
     private List<ArtistTag> tags;
 }

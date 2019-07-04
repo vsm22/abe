@@ -1,7 +1,5 @@
 package anvil.web;
-import anvil.domain.model.entity.AlbumSearchResult;
-import anvil.domain.model.entity.ArtistSearchResult;
-import anvil.domain.model.entity.TrackSearchResult;
+import anvil.domain.model.entity.*;
 import anvil.domain.services.LastfmApiClient;
 import anvil.domain.services.ModelDataMapper;
 import anvil.domain.services.api.RemoteApiClient;
@@ -78,31 +76,93 @@ public class PublicRestController {
         }
     }
 
-//	@RequestMapping(value="/getArtistInfo")
-//	@Cacheable("artistInfoCache")
-//	public String getArtistInfo(@RequestParam(value="query", required=true) String query) throws Exception {
-//
-//		System.out.println("LfmArtist info request issued, query= " + query);
-//
-//		try {
-//			return dataBuilder.createArtistInfo(query).toJson();
-//		} catch (Exception e) {
-//			System.err.println(e);
-//			return null;
-//		}
-//	}
-//
-//	@RequestMapping(value="/getSimilarArtists")
-//	@Cacheable("similarArtistsCache")
-//	public String getSimilarArtists(@RequestParam(value="query", required=true) String query) throws Exception {
-//
-//		System.out.println("Similar artists request issued, query= " + query);
-//
-//		try {
-//			return dataBuilder.createSimilarArtists(query).toJson();
-//		} catch (Exception e) {
-//			System.err.println(e);
-//			return null;
-//		}
-//	}
+    @RequestMapping(value = "/getArtistInfo")
+    @Cacheable("artistInfoCache")
+    public String getArtistInfo(@RequestParam(value = "query", required = true) String query) throws Exception {
+
+        try {
+
+            Artist artist = remoteApiClient.getArtistInfo(query);
+            String json = jsonMapper.writeValueAsString(artist);
+            return json;
+
+        } catch (Exception e) {
+
+            System.err.println(e);
+            return null;
+
+        }
+    }
+
+    @RequestMapping(value = "/getAlbumInfo")
+    @Cacheable("albumInfoCache")
+    public String getAlbumInfo(@RequestParam(value = "query", required = true) String query) throws Exception {
+
+        try {
+
+            Album album = remoteApiClient.getAlbumInfo(query);
+            String json = jsonMapper.writeValueAsString(album);
+            return json;
+
+        } catch (Exception e) {
+
+            System.err.println(e);
+            return null;
+
+        }
+    }
+
+    @RequestMapping(value = "/getTrackInfo")
+    @Cacheable("trackInfoCache")
+    public String getTrackInfo(@RequestParam(value = "query", required = true) String query) throws Exception {
+
+        try {
+
+            Track track = remoteApiClient.getTrackInfo(query);
+            String json = jsonMapper.writeValueAsString(track);
+            return json;
+
+        } catch (Exception e) {
+
+            System.err.println(e);
+            return null;
+
+        }
+    }
+
+    @RequestMapping(value = "/getSimilarArtists")
+    @Cacheable("similarArtistsCache")
+    public String getSimilarArtists(@RequestParam(value = "query", required = true) String query) throws Exception {
+
+	    try {
+
+	        SimilarArtists similarArtists = remoteApiClient.getSimilarArtists(query);
+	        String json = jsonMapper.writeValueAsString(similarArtists);
+	        return json;
+
+        } catch (Exception e) {
+
+            System.err.println(e);
+            return null;
+
+        }
+    }
+
+    @RequestMapping(value = "/getArtistAlbums")
+    @Cacheable("artistAlbumsCache")
+    public String getArtistAlbums(@RequestParam(value = "query", required = true) String query) throws Exception {
+
+        try {
+
+            ArtistAlbums artistAlbums = remoteApiClient.getArtistAlbums(query);
+            String json = jsonMapper.writeValueAsString(artistAlbums);
+            return json;
+
+        } catch (Exception e) {
+
+            System.err.println(e);
+            return null;
+
+        }
+    }
 }

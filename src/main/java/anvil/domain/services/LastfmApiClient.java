@@ -1,9 +1,7 @@
 package anvil.domain.services;
 
 import anvil.domain.model.entity.*;
-import anvil.domain.remote.lastfm.entity.LfmAlbumSearchResult;
-import anvil.domain.remote.lastfm.entity.LfmArtistSearchResult;
-import anvil.domain.remote.lastfm.entity.LfmTrackSearchResult;
+import anvil.domain.remote.lastfm.entity.*;
 import anvil.domain.services.api.RemoteApiClient;
 import com.ctc.wstx.stax.WstxInputFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -47,16 +45,26 @@ public class LastfmApiClient implements RemoteApiClient {
     /**
      * Fix malformed xml responses.
      */
-    private String fixXml(String xml) {
+    private String fixXml(String xml, String root, boolean shouldAddOpensearchNs) {
+
+        // Trim everything outside of the root element
+        xml = "<" + root + StringUtils.substringAfter(xml,"<" + root);
+        xml = StringUtils.substringBeforeLast(xml, "</" + root + ">") + "</" + root + ">";
 
         // Add opensearch namespace declaration
-        String xmlHeader = StringUtils.substringBetween(xml, "<results", ">");
-        if (!xmlHeader.contains("xmlns:opensearch")) {
-            String newXmlHeader = xmlHeader + " xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\"";
-            xml = StringUtils.replace(xml,
-                    "<results" + xmlHeader + ">",
-                    "<results" + newXmlHeader + ">");
+        if (shouldAddOpensearchNs == true) {
+
+            String xmlHeader = StringUtils.substringBetween(xml, "<" + root, ">");
+            if (!xmlHeader.contains("xmlns:opensearch")) {
+                String newXmlHeader = xmlHeader + " xmlns:opensearch=\"http://a9.com/-/spec/opensearch/1.1/\"";
+                xml = StringUtils.replace(xml,
+                        "<" + root + xmlHeader + ">",
+                        "<" + root + newXmlHeader + ">");
+            }
         }
+
+        // Remove all instances of "\n", which causes Jackson to throw MismatchedInputException
+        xml = xml.replaceAll("\\n", "");
 
         return xml;
     }
@@ -69,10 +77,8 @@ public class LastfmApiClient implements RemoteApiClient {
                 + "&artist=" + query
                 + "&api_key=" + apiKey, String.class);
 
-        // Use only part of the response between <results> tags
-        response = "<results" + StringUtils.substringBetween(response, "<results", "</results>") + "</results>";
 
-        response = fixXml(response);
+        response = fixXml(response, "results", true);
 
         LfmArtistSearchResult lfmArtistSearchResult = xmlMapper.readValue(response, LfmArtistSearchResult.class);
 
@@ -89,10 +95,7 @@ public class LastfmApiClient implements RemoteApiClient {
                 + "&album=" + query
                 + "&api_key=" + apiKey, String.class);
 
-        // Use only part of the response between <results> tags
-        response = "<results" + StringUtils.substringBetween(response, "<results", "</results>") + "</results>";
-
-        response = fixXml(response);
+        response = fixXml(response, "results", true);
 
         LfmAlbumSearchResult lfmAlbumSearchResult = xmlMapper.readValue(response, LfmAlbumSearchResult.class);
 
@@ -109,10 +112,7 @@ public class LastfmApiClient implements RemoteApiClient {
                 + "&track=" + query
                 + "&api_key=" + apiKey, String.class);
 
-        // Use only part of the response between <results> tags
-        response = "<results" + StringUtils.substringBetween(response, "<results", "</results>") + "</results>";
-
-        response = fixXml(response);
+        response = fixXml(response, "results", true);
 
         LfmTrackSearchResult lfmTrackSearchResult = xmlMapper.readValue(response, LfmTrackSearchResult.class);
 
@@ -122,17 +122,95 @@ public class LastfmApiClient implements RemoteApiClient {
     }
 
     @Override
-    public Artist getArtist(String query) {
-        return null;
+    public Artist getArtistInfo(String query) throws RestClientException, XMLStreamException, IOException {
+
+        String response = restTemplate.getForObject(apiUrl
+                + "?method=artist.getinfo"
+                + "&artist=" + query
+                + "&api_key=" + apiKey, String.class);
+
+        response = fixXml(response, "artist", false);
+
+        LfmArtist lfmArtist = xmlMapper.readValue(response, LfmArtist.class);
+
+        Artist artist = modelDataMapper.map(lfmArtist);
+
+        return artist;
     }
 
     @Override
-    public Album getAlbum(String query) {
-        return null;
+    public Album getAlbumInfo(String query) throws RestClientException, XMLStreamException, IOException {
+
+        String response = restTemplate.getForObject(apiUrl
+                + "?method=album.getinfo"
+                + "&artist=" + query
+                + "&api_key=" + apiKey, String.class);
+
+        response = fixXml(response, "album", false);
+
+        LfmAlbum lfmAlbum = xmlMapper.readValue(response, LfmAlbum.class);
+
+        Album album = modelDataMapper.map(lfmAlbum);
+
+        return album;
     }
 
     @Override
-    public Track getTrack(String query) {
-        return null;
+    public Track getTrackInfo(String query) throws RestClientException, XMLStreamException, IOException {
+
+        String response = restTemplate.getForObject(apiUrl
+                + "?method=track.getinfo"
+                + "&artist=" + query
+                + "&api_key=" + apiKey, String.class);
+
+        response = fixXml(response, "track", false);
+
+        LfmTrack lfmTrack = xmlMapper.readValue(response, LfmTrack.class);
+
+        Track track = modelDataMapper.map(lfmTrack);
+
+        return track;
+    }
+
+    @Override
+    public SimilarArtists getSimilarArtists(String query) throws Exception {
+
+        String response = restTemplate.getForObject(apiUrl
+                + "?method=artist.getsimilar"
+                + "&artist=" + query
+                + "&api_key=" + apiKey, String.class);
+
+        response = fixXml(response, "similarartists", false);
+
+        // Wrap in an extra <results> tag
+        response = response.concat("</results>");
+        response = new String("<results>").concat(response);
+
+        LfmSimilarArtists lfmSimilarArtists = xmlMapper.readValue(response, LfmSimilarArtists.class);
+
+        SimilarArtists similarArtists = modelDataMapper.map(lfmSimilarArtists);
+
+        return similarArtists;
+    }
+
+    @Override
+    public ArtistAlbums getArtistAlbums(String query) throws Exception {
+
+        String response = restTemplate.getForObject(apiUrl
+                + "?method=artist.gettopalbums"
+                + "&artist=" + query
+                + "&api_key=" + apiKey, String.class);
+
+        response = fixXml(response, "topalbums", false);
+
+        // Wrap in extra <results> tag
+        response = response.concat("</results>");
+        response = new String("<results>").concat(response);
+
+        LfmArtistAlbums lfmArtistAlbums = xmlMapper.readValue(response, LfmArtistAlbums.class);
+
+        ArtistAlbums artistAlbums = modelDataMapper.map(lfmArtistAlbums);
+
+        return artistAlbums;
     }
 }
