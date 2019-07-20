@@ -18,7 +18,7 @@ import static lombok.AccessLevel.PRIVATE;
 @Component
 @AllArgsConstructor(access = PACKAGE)
 @FieldDefaults(level = PRIVATE, makeFinal = true)
-final class TokenAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+final class  TokenAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
     @NonNull
     UserAuthenticationService auth;

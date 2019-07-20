@@ -57,6 +57,7 @@ final class JWTTokenService implements Clock, TokenService {
     }
 
     private String newToken(final Map<String, String> attributes, final int expiresInSec) {
+
         final DateTime now = dates.now();
         final Claims claims = Jwts
                 .claims()
@@ -80,9 +81,6 @@ final class JWTTokenService implements Clock, TokenService {
     @Override
     public Map<String, String> verify(final String token) {
 
-        System.out.println("Verifying tokne " + token);
-        System.out.println("Tokens: " + Jwts.claims());
-
         final JwtParser parser = Jwts
                 .parser()
                 .requireIssuer(issuer)
@@ -95,6 +93,7 @@ final class JWTTokenService implements Clock, TokenService {
 
     @Override
     public Map<String, String> untrusted(final String token) {
+
         final JwtParser parser = Jwts
                 .parser()
                 .requireIssuer(issuer)
@@ -107,6 +106,7 @@ final class JWTTokenService implements Clock, TokenService {
     }
 
     private static Map<String, String> parseClaims(final Supplier<Claims> toClaims) {
+
         try {
             final Claims claims = toClaims.get();
             final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
@@ -121,6 +121,7 @@ final class JWTTokenService implements Clock, TokenService {
 
     @Override
     public Date now() {
+
         final DateTime now = dates.now();
         return now.toDate();
     }

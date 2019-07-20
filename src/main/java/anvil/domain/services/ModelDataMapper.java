@@ -154,6 +154,75 @@ public class ModelDataMapper {
 		return album;
 	}
 
+	/**
+	 * Note: the only thing different from map(LfmAlbum lfmAlbum) is the "artist" field
+	 * is an LfmArtist instead of a String.
+	 */
+	public Album map(LfmArtistAlbums.Album lfmAlbum) {
+
+		Album album = new Album();
+
+		album.setAlbumName(lfmAlbum.getName());
+
+		Artist artist = map(lfmAlbum.getArtist());
+
+		album.setArtist(artist);
+
+		album.setDate(lfmAlbum.getReleaseDate());
+
+		List<LfmImage> lfmImages = lfmAlbum.getImages();
+		if (lfmImages != null) {
+
+			for (LfmImage lfmImage : lfmImages) {
+
+				String imageSize = lfmImage.getSize();
+
+				switch (imageSize) {
+					case "small":
+						album.setImageSmallUrl(lfmImage.getUrl());
+						break;
+					case "medium":
+						album.setImageMediumUrl(lfmImage.getUrl());
+						break;
+					case "large":
+					default:
+						album.setImageLargeUrl(lfmImage.getUrl());
+						break;
+				}
+			}
+		}
+
+		List<LfmTag> lfmTags = lfmAlbum.getTags();
+		if (lfmTags != null) {
+
+			List<AlbumTag> albumTags = new ArrayList<>();
+
+			for (LfmTag lfmTag : lfmTags) {
+
+				AlbumTag albumTag = AlbumTag.builder()
+						.album(album)
+						.tagName(lfmTag.getName())
+						.build();
+
+				albumTags.add(albumTag);
+			}
+
+			album.setTags(albumTags);
+			// TODO: persist each tag?
+		}
+
+		List<LfmTrack> lfmTracks = lfmAlbum.getTracks();
+		if (lfmTracks != null) {
+
+			for (LfmTrack lfmTrack : lfmTracks) {
+
+				Track track = map(lfmTrack);
+			}
+		}
+
+		return album;
+	}
+
 	public AlbumSearchResult map(LfmAlbumSearchResult lfmSearchResult) throws IOException, XMLStreamException {		List<Artist> artistList = new ArrayList<>();
 
 		List<Album> albumList = new ArrayList<>();
@@ -247,7 +316,8 @@ public class ModelDataMapper {
 
 		List<Album> albumList = new ArrayList<>();
 
-		for (LfmAlbum lfmAlbum : lfmArtistAlbums.getAlbumList()) {
+		for (LfmArtistAlbums.Album lfmAlbum : lfmArtistAlbums.getAlbumList()) {
+
 			Album album = map(lfmAlbum);
 			albumList.add(album);
 		}
