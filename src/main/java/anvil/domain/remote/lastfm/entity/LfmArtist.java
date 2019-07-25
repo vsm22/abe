@@ -19,6 +19,9 @@ public class LfmArtist {
     @JacksonXmlProperty(localName = "url")
     private String url;
 
+    @JacksonXmlProperty(localName = "mbid")
+    private String mbid;
+
     @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "image")
     private List<LfmImage> images;

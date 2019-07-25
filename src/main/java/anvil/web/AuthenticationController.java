@@ -15,12 +15,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/public/auth")
@@ -37,6 +35,28 @@ public class AuthenticationController {
     @Autowired
     BCryptPasswordEncoder passwordEncoder;
 
+    @GetMapping("/getGuestToken")
+    ResponseEntity<String> getGuestToken() throws JsonProcessingException {
+
+        String uuid;
+
+        do {
+            uuid = "guest_" + UUID.randomUUID().toString();
+        } while (users.findByUsername(uuid).isPresent());
+
+        String password = UUID.randomUUID().toString();
+
+        User guestUser = User.builder()
+                .username(uuid)
+                .password(passwordEncoder.encode(password))
+                .isGuest(Boolean.TRUE)
+                .build();
+
+        users.save(guestUser);
+
+        return login(uuid, password);
+    }
+
     @PostMapping("/register")
     ResponseEntity<String> register(@RequestParam("username") final String username,
                                       @RequestParam("email") final String email,
@@ -50,6 +70,7 @@ public class AuthenticationController {
                         .username(username)
                         .email(email)
                         .password(passwordEncoder.encode(password))
+                        .isGuest(false)
                         .build();
 
         users.save(newUser);

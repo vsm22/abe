@@ -27,6 +27,9 @@ public class Artist {
     @Column(name = "artist_name")
     private String artistName;
 
+    @Column(name = "mbid")
+    private String mbid;
+
     @Column(name = "image_small_url")
     private String imageSmallUrl;
 

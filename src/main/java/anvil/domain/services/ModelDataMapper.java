@@ -21,6 +21,8 @@ public class ModelDataMapper {
 
 		artist.setArtistName(lfmArtist.getName());
 
+		artist.setMbid(lfmArtist.getMbid());
+
 		List<LfmImage> lfmImages = lfmArtist.getImages();
 		if (lfmImages != null) {
 

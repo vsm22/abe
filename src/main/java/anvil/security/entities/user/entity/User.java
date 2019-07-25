@@ -3,14 +3,16 @@ package anvil.security.entities.user.entity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
+import lombok.experimental.NonFinal;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 @Builder
 @Value
@@ -32,17 +34,45 @@ public class User implements UserDetails {
     @Column(name = "password")
     String password;
 
+    @Column(name = "is_guest")
+    boolean isGuest;
+
+    @Column(name = "last_active")
+    @NonFinal
+    @Setter(AccessLevel.PUBLIC)
+    LocalDateTime lastActive;
+
     @JsonCreator
     public User(@JsonProperty("id") final Long id,
                 @JsonProperty("username") final String username,
                 @JsonProperty("email") final String email,
-                @JsonProperty("password") final String password) {
+                @JsonProperty("password") final String password,
+                @JsonProperty("isGuest") final boolean isGuest,
+                @JsonProperty("lastActive") final LocalDateTime lastActive) {
 
         super();
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.isGuest = isGuest;
+        this.lastActive = LocalDateTime.now();
+    }
+
+    @JsonCreator
+    public User(@JsonProperty("id") final Long id,
+                @JsonProperty("username") final String username,
+                @JsonProperty("email") final String email,
+                @JsonProperty("password") final String password,
+                @JsonProperty("lastActive") final LocalDateTime lastActive) {
+
+        super();
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.isGuest = false;
+        this.lastActive = LocalDateTime.now();
     }
 
     @Override
