@@ -12,6 +12,7 @@ import anvil.util.DateService;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import static io.jsonwebtoken.SignatureAlgorithm.HS256;
@@ -36,13 +37,15 @@ final class JWTTokenService implements Clock, TokenService {
     JWTTokenService(final DateService dates,
                     @Value("${jwt.issuer:anvil}") final String issuer,
                     @Value("${jwt.expiration-sec:86400}") final int expirationSec,
-                    @Value("${jwt.clock-skew-sec:300}") final int clockSkewSec,
-                    @Value("${jwt.secret:secret}") final String secret) {
+                    @Value("${jwt.clock-skew-sec:300}") final int clockSkewSec) {
         super();
         this.dates = requireNonNull(dates);
         this.issuer = requireNonNull(issuer);
         this.expirationSec = requireNonNull(expirationSec);
         this.clockSkewSec = requireNonNull(clockSkewSec);
+
+        String secret = UUID.randomUUID().toString();
+
         this.secretKey = BASE64.encode(requireNonNull(secret));
     }
 
