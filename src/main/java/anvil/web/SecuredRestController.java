@@ -92,8 +92,6 @@ final class SecuredRestController {
 
         String json = new ObjectMapper().writeValueAsString(userAndToken);
 
-        System.out.println("Authentication json: " + json);
-
         return new ResponseEntity<String>(json, HttpStatus.OK);
     }
 
@@ -107,10 +105,12 @@ final class SecuredRestController {
 
         } catch (IllegalArgumentException e) {
 
-            return new ResponseEntity<String>("Exception: " + e.getMessage(), HttpStatus.CONFLICT);
+            ResponseEntity<String> artistCollections = getArtistCollections(user);
+
+            return new ResponseEntity<String>(artistCollections.getBody(), getAuthorizationHeader(user), HttpStatus.CONFLICT);
         }
 
-        return new ResponseEntity<String>("", getAuthorizationHeader(user), HttpStatus.OK);
+        return getArtistCollections(user);
     }
 
     @GetMapping("/getArtistCollections")
@@ -120,7 +120,7 @@ final class SecuredRestController {
 
         String json = new ObjectMapper().writeValueAsString(collections);
 
-        return new ResponseEntity<String>(json, HttpStatus.OK);
+        return new ResponseEntity<String>(json, getAuthorizationHeader(user), HttpStatus.OK);
     }
 
     @PostMapping("/user/addArtistToArtistCollection")
