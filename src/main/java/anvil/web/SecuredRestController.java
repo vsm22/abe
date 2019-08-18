@@ -123,8 +123,10 @@ final class SecuredRestController {
         return new ResponseEntity<String>(json, getAuthorizationHeader(user), HttpStatus.OK);
     }
 
-    @PostMapping("/user/addArtistToArtistCollection")
-    boolean addArtistToArtistCollection() {
+    @PostMapping("/user/addArtistToCollection")
+    ResponseEntity<String> addArtistToCollection(@AuthenticationPrincipal final User user,
+                                  @RequestParam("collectionName") final String collectionName) throws JsonProcessingException {
+
 
         return true;
     }
