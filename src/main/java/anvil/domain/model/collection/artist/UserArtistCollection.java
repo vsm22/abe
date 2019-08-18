@@ -1,6 +1,7 @@
 package anvil.domain.model.collection.artist;
 
 import anvil.security.entities.user.entity.User;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Builder;
 import lombok.Value;
 
@@ -26,5 +27,6 @@ public class UserArtistCollection {
     private String collectionName;
 
     @OneToMany(mappedBy = "userArtistCollection")
+    @JsonManagedReference
     private List<UserArtistCollectionEntry> artistListEntries;
 }

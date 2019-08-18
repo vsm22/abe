@@ -1,6 +1,8 @@
 package anvil.web;
 
 import anvil.domain.model.collection.artist.UserArtistCollection;
+import anvil.domain.model.entity.Artist;
+import anvil.domain.model.entity.crud.ArtistCrudRepo;
 import anvil.domain.services.UserCollectionsService;
 import anvil.security.auth.api.TokenService;
 import anvil.security.auth.api.UserAuthenticationService;
@@ -9,6 +11,7 @@ import anvil.security.entities.user.entity.User;
 import anvil.security.entities.user.entity.UserAndToken;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -21,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +50,13 @@ final class SecuredRestController {
 
     @Autowired
     UserCrudService userCrudService;
+
+    @Autowired
+    ArtistCrudRepo artistCrudRepo;
+
+    @Autowired
+    @Qualifier("jsonMapper")
+    ObjectMapper objectMapper;
 
     private void updateLastActive(final User user) {
 
@@ -123,11 +134,30 @@ final class SecuredRestController {
         return new ResponseEntity<String>(json, getAuthorizationHeader(user), HttpStatus.OK);
     }
 
-    @PostMapping("/user/addArtistToCollection")
+    @PostMapping("/addArtistToCollection")
     ResponseEntity<String> addArtistToCollection(@AuthenticationPrincipal final User user,
-                                  @RequestParam("collectionName") final String collectionName) throws JsonProcessingException {
+                                  @RequestParam("collectionName") final String collectionName,
+                                  @RequestBody final String artistJson) throws JsonProcessingException, IOException {
 
+        Artist artist = objectMapper.readValue(artistJson, Artist.class);
 
-        return true;
+        List<Artist> repoArtists = artistCrudRepo.findByMbid(artist.getMbid());
+
+        if(!repoArtists.isEmpty()) {
+            artist = repoArtists.get(0);
+        } else {
+            artistCrudRepo.save(artist);
+        }
+
+        try {
+
+            userCollectionsService.addArtistToCollection(user, artist, collectionName);
+
+        } catch (IllegalArgumentException e) {
+
+            return new ResponseEntity<String>("", getAuthorizationHeader(user), HttpStatus.CONFLICT);
+        }
+
+        return new ResponseEntity<String>("", getAuthorizationHeader(user), HttpStatus.OK);
     }
 }

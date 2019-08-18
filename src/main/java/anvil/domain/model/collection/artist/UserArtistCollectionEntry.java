@@ -1,6 +1,7 @@
 package anvil.domain.model.collection.artist;
 
 import anvil.domain.model.entity.Artist;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Builder;
 import lombok.Value;
 
@@ -19,6 +20,7 @@ public class UserArtistCollectionEntry {
 
     @ManyToOne
     @JoinColumn(name = "collection_id", referencedColumnName = "id")
+    @JsonBackReference
     private UserArtistCollection userArtistCollection;
 
     @ManyToOne

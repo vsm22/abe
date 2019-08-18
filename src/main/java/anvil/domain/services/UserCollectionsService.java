@@ -45,7 +45,11 @@ public class UserCollectionsService {
      * @param artist
      * @param collection
      */
-    public void addArtistToArtistCollection(Artist artist, UserArtistCollection collection) {
+    public void addArtistToCollection(final User user, Artist artist, UserArtistCollection collection) throws IllegalArgumentException {
+
+        if (!userArtistCollectionEntryCrudRepo.findByUserArtistCollectionAndArtist(collection, artist).isEmpty()) {
+            throw new IllegalArgumentException("Artist is already in this collection");
+        }
 
         UserArtistCollectionEntry entry = UserArtistCollectionEntry.builder()
                 .userArtistCollection(collection)
@@ -53,6 +57,22 @@ public class UserCollectionsService {
                 .build();
 
         userArtistCollectionEntryCrudRepo.save(entry);
+    }
+
+    /**
+     * Add an artist to existing artist collection (find collection by String collectionName).
+     * @param artist
+     * @param collectionName
+     */
+    public void addArtistToCollection(final User user, Artist artist, String collectionName) throws IllegalArgumentException {
+
+        List<UserArtistCollection> collections = userArtistCollectionCrudRepo.findByUserAndCollectionName(user, collectionName);
+
+        if (collections.isEmpty()) {
+            throw new IllegalArgumentException("Could not find collection for provided user and collectionName");
+        }
+
+        addArtistToCollection(user, artist, collections.get(0));
     }
 
     /**
