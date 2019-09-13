@@ -1,5 +1,7 @@
 package anvil.web;
 
+import anvil.domain.model.entity.UserInfo;
+import anvil.domain.model.entity.crud.UserInfoCrudRepo;
 import anvil.security.auth.api.UserAuthenticationService;
 import anvil.security.entities.user.crud.api.UserCrudService;
 import anvil.security.entities.user.entity.User;
@@ -66,12 +68,19 @@ public class AuthenticationController {
             return new ResponseEntity<String>("Username already exists", HttpStatus.CONFLICT);
         }
 
+        UserInfo userInfo = UserInfo.builder()
+                        .username(username)
+                        .build();
+
         User newUser = User.builder()
                         .username(username)
                         .email(email)
                         .password(passwordEncoder.encode(password))
                         .isGuest(false)
+                        .userInfo(userInfo)
                         .build();
+
+        userInfo.setUser(newUser);
 
         users.save(newUser);
 

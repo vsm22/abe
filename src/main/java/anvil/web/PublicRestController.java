@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -164,5 +165,13 @@ public class PublicRestController {
             return null;
 
         }
+    }
+
+    @GetMapping(value = "/searchUsername")
+    public String searchUsername(@RequestParam(value = "query", required = true) String query) throws Exception {
+
+
+
+        return "";
     }
 }
