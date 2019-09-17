@@ -50,8 +50,9 @@ public class User implements UserDetails {
     @Setter(AccessLevel.PUBLIC)
     LocalDateTime lastActive;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
+    @JsonIgnore
     UserInfo userInfo;
 
     @JsonCreator
