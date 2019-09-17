@@ -1,7 +1,6 @@
 package anvil.web;
 
-import anvil.domain.model.entity.UserInfo;
-import anvil.domain.model.entity.crud.UserInfoCrudRepo;
+import anvil.security.entities.user.entity.UserPublicInfo;
 import anvil.security.auth.api.UserAuthenticationService;
 import anvil.security.entities.user.crud.api.UserCrudService;
 import anvil.security.entities.user.entity.User;
@@ -13,13 +12,11 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -68,7 +65,7 @@ public class AuthenticationController {
             return new ResponseEntity<String>("Username already exists", HttpStatus.CONFLICT);
         }
 
-        UserInfo userInfo = UserInfo.builder()
+        UserPublicInfo userPublicInfo = UserPublicInfo.builder()
                         .username(username)
                         .build();
 
@@ -77,10 +74,10 @@ public class AuthenticationController {
                         .email(email)
                         .password(passwordEncoder.encode(password))
                         .isGuest(false)
-                        .userInfo(userInfo)
+                        .userPublicInfo(userPublicInfo)
                         .build();
 
-        userInfo.setUser(newUser);
+        userPublicInfo.setUser(newUser);
 
         users.save(newUser);
 

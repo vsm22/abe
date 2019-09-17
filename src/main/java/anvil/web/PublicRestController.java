@@ -1,8 +1,7 @@
 package anvil.web;
 import anvil.domain.model.entity.*;
-import anvil.domain.services.LastfmApiClient;
-import anvil.domain.services.ModelDataMapper;
 import anvil.domain.services.api.RemoteApiClient;
+import anvil.security.entities.user.entity.UserPublicInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
@@ -187,25 +186,31 @@ public class PublicRestController {
 
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory()
                 .buildQueryBuilder()
-                .forEntity(UserInfo.class)
+                .forEntity(UserPublicInfo.class)
                 .get();
 
         org.apache.lucene.search.Query query = queryBuilder
                 .keyword()
                 .fuzzy()
-                .withEditDistanceUpTo(5)
-                .withPrefixLength(5)
+                .withEditDistanceUpTo(2)
+                .withPrefixLength(3)
                 .onField("username")
                 .matching(username)
                 .createQuery();
 
         org.hibernate.search.jpa.FullTextQuery jpaQuery
-                = fullTextEntityManager.createFullTextQuery(query, UserInfo.class);
+                = fullTextEntityManager.createFullTextQuery(query, UserPublicInfo.class);
 
-        List<UserInfo> resultList = jpaQuery.getResultList();
+        List<UserPublicInfo> resultList = jpaQuery.getResultList();
 
         String json = jsonMapper.writeValueAsString(resultList);
 
         return json;
+    }
+
+    @GetMapping(value="/getUserSearch")
+    public String getUserSearch(@RequestParam(value = "query", required = true) String query) throws Exception {
+
+	    return searchUsername(query);
     }
 }

@@ -1,13 +1,10 @@
-package anvil.domain.model.entity;
+package anvil.security.entities.user.entity;
 
 import anvil.security.entities.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.search.annotations.*;
 import org.hibernate.search.annotations.Index;
 
@@ -15,12 +12,15 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Table(name = "user_info")
 @Indexed
-public class UserInfo implements Serializable {
+public class UserPublicInfo implements Serializable {
 
     @Id
     @Column(name = "id")

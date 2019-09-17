@@ -26,9 +26,9 @@ public class Friend implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private UserInfo user;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "friend_id")
-    private UserInfo friend;
+    private User friend;
 }

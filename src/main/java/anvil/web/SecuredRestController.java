@@ -2,13 +2,16 @@ package anvil.web;
 
 import anvil.domain.model.collection.artist.UserArtistCollection;
 import anvil.domain.model.entity.Artist;
+import anvil.domain.model.entity.Friend;
 import anvil.domain.model.entity.crud.ArtistCrudRepo;
+import anvil.domain.model.entity.crud.FriendCrudRepo;
 import anvil.domain.services.UserCollectionsService;
 import anvil.security.auth.api.TokenService;
 import anvil.security.auth.api.UserAuthenticationService;
 import anvil.security.entities.user.crud.api.UserCrudService;
 import anvil.security.entities.user.entity.User;
 import anvil.security.entities.user.entity.UserAndToken;
+import anvil.security.entities.user.entity.UserPublicInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -26,9 +29,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PACKAGE;
 import static lombok.AccessLevel.PRIVATE;
@@ -57,6 +59,9 @@ final class SecuredRestController {
     @Autowired
     @Qualifier("jsonMapper")
     ObjectMapper objectMapper;
+
+    @Autowired
+    FriendCrudRepo friendCrudRepo;
 
     private void updateLastActive(final User user) {
 
@@ -159,5 +164,45 @@ final class SecuredRestController {
         }
 
         return new ResponseEntity<String>("", getAuthorizationHeader(user), HttpStatus.OK);
+    }
+
+    @PostMapping("/addUserToFriends")
+    ResponseEntity<String> addUserToFriends(@AuthenticationPrincipal final User user,
+                                            @RequestBody final String username) throws JsonProcessingException {
+
+        try {
+
+            User otherUser = userCrudService.findByUsername(username)
+                    .orElseThrow(() -> new IllegalArgumentException());
+
+            Friend friend = Friend.builder()
+                    .user(user)
+                    .friend(otherUser)
+                    .build();
+
+            friendCrudRepo.save(friend);
+
+            return getFriends(user);
+
+        } catch (IllegalArgumentException e) {
+
+            return new ResponseEntity<>(getFriends(user).getBody(), getAuthorizationHeader(user), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/getFriends")
+    ResponseEntity<String> getFriends(@AuthenticationPrincipal final User user) throws JsonProcessingException {
+
+        List<Friend> friendList = friendCrudRepo.findByUser(user);
+
+        List<UserPublicInfo> friendPublicInfoList = friendList.stream()
+                                                                .map(friend -> friend
+                                                                                .getFriend()
+                                                                                .getUserPublicInfo())
+                                                                .collect(Collectors.toList());
+
+        String json = objectMapper.writeValueAsString(friendPublicInfoList);
+
+        return new ResponseEntity<>(json, getAuthorizationHeader(user), HttpStatus.OK);
     }
 }
