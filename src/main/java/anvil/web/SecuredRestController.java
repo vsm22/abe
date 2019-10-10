@@ -3,8 +3,10 @@ package anvil.web;
 import anvil.domain.model.collection.artist.UserArtistCollection;
 import anvil.domain.model.entity.Artist;
 import anvil.domain.model.entity.Friend;
+import anvil.domain.model.entity.ArtistRecommendation;
 import anvil.domain.model.entity.crud.ArtistCrudRepo;
 import anvil.domain.model.entity.crud.FriendCrudRepo;
+import anvil.domain.model.entity.crud.RecommendationCrudRepo;
 import anvil.domain.services.UserCollectionsService;
 import anvil.security.auth.api.TokenService;
 import anvil.security.auth.api.UserAuthenticationService;
@@ -14,7 +16,6 @@ import anvil.security.entities.user.entity.UserAndToken;
 import anvil.security.entities.user.entity.UserPublicInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -62,6 +63,9 @@ final class SecuredRestController {
 
     @Autowired
     FriendCrudRepo friendCrudRepo;
+
+    @Autowired
+    RecommendationCrudRepo recommendationCrudRepo;
 
     private void updateLastActive(final User user) {
 
@@ -204,5 +208,54 @@ final class SecuredRestController {
         String json = objectMapper.writeValueAsString(friendPublicInfoList);
 
         return new ResponseEntity<>(json, getAuthorizationHeader(user), HttpStatus.OK);
+    }
+
+    @GetMapping("/getArtistRecommendations")
+    ResponseEntity<String> getRecommendations(@AuthenticationPrincipal final User user) throws JsonProcessingException {
+
+        List<ArtistRecommendation> artistRecommendations = recommendationCrudRepo.findByUser(user.getUserPublicInfo());
+
+        String json = objectMapper.writeValueAsString(artistRecommendations);
+
+        return new ResponseEntity<>(json, getAuthorizationHeader(user), HttpStatus.OK);
+    }
+
+    @PostMapping("/recommendArtist")
+    ResponseEntity<String> recommendArtist(@AuthenticationPrincipal final User user,
+                                           @RequestParam final String recommendToUsername,
+                                           @RequestBody final String artistJson) throws JsonProcessingException {
+
+        try {
+
+            Artist artist = objectMapper.readValue(artistJson, Artist.class);
+
+            List<Artist> repoArtists = artistCrudRepo.findByMbid(artist.getMbid());
+
+            if(!repoArtists.isEmpty()) {
+                artist = repoArtists.get(0);
+            } else {
+                artistCrudRepo.save(artist);
+            }
+
+            UserPublicInfo recommendToUserPublicInfo = userCrudService.findByUsername(recommendToUsername)
+                                    .orElseThrow(() -> new IllegalArgumentException())
+                                    .getUserPublicInfo();
+
+            UserPublicInfo userPublicInfo = user.getUserPublicInfo();
+
+            ArtistRecommendation artistRecommendation = ArtistRecommendation.builder()
+                                                .user(recommendToUserPublicInfo)
+                                                .recommender(userPublicInfo)
+                                                .artist(artist)
+                                                .build();
+
+            recommendationCrudRepo.save(artistRecommendation);
+
+        } catch (IllegalArgumentException | IOException e) {
+
+            return new ResponseEntity<String>("", getAuthorizationHeader(user), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<String>("", getAuthorizationHeader(user), HttpStatus.OK);
     }
 }

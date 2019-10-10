@@ -15,7 +15,6 @@ import java.util.List;
 @Entity
 @Table(name = "tracks")
 public class Track {
-
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
