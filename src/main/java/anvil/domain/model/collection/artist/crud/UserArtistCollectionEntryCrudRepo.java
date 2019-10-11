@@ -10,5 +10,7 @@ import java.util.List;
 
 public interface UserArtistCollectionEntryCrudRepo extends CrudRepository<UserArtistCollectionEntry, Long> {
 
+    public List<UserArtistCollectionEntry> findByUserArtistCollection(UserArtistCollection collection);
+
     public List<UserArtistCollectionEntry> findByUserArtistCollectionAndArtist(UserArtistCollection collection, Artist artist);
 }

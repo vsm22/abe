@@ -22,7 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 		"getArtistCollections",
 		"collections",
 		"favorites",
-		"friends"})
+		"friends",
+		"recommendations"})
 public class IndexController {
 
 	@GetMapping

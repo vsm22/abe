@@ -18,7 +18,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "artists")
-public class Artist {
+public class Artist implements Serializable {
 
     @Id
     @Column(name = "id")

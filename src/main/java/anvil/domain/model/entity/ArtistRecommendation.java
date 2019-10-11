@@ -6,9 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.tomcat.jni.Local;
+import org.joda.time.DateTime;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Data
@@ -35,4 +39,7 @@ public class ArtistRecommendation implements Serializable {
     @ManyToOne
     @JoinColumn(name = "artist_id")
     private Artist artist;
+
+    @Column(name = "date_recommended")
+    private LocalDateTime date;
 }

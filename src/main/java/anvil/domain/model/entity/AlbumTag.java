@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Builder
 @Entity
 @Table(name = "album_tags")
-public class AlbumTag {
+public class AlbumTag implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

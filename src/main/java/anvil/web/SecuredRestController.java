@@ -1,9 +1,11 @@
 package anvil.web;
 
 import anvil.domain.model.collection.artist.UserArtistCollection;
+import anvil.domain.model.collection.artist.UserArtistCollectionEntry;
 import anvil.domain.model.entity.Artist;
 import anvil.domain.model.entity.Friend;
 import anvil.domain.model.entity.ArtistRecommendation;
+import anvil.domain.model.entity.RecommendArtistRequestBody;
 import anvil.domain.model.entity.crud.ArtistCrudRepo;
 import anvil.domain.model.entity.crud.FriendCrudRepo;
 import anvil.domain.model.entity.crud.RecommendationCrudRepo;
@@ -14,6 +16,9 @@ import anvil.security.entities.user.crud.api.UserCrudService;
 import anvil.security.entities.user.entity.User;
 import anvil.security.entities.user.entity.UserAndToken;
 import anvil.security.entities.user.entity.UserPublicInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -133,6 +138,30 @@ final class SecuredRestController {
         return getArtistCollections(user);
     }
 
+    @GetMapping("/getArtistCollection")
+    ResponseEntity<String> getArtistCollection(@AuthenticationPrincipal final User user,
+                                               @RequestParam("username") final String username,
+                                               @RequestParam("collectionName") final String collectionName) throws JsonProcessingException {
+
+        try {
+
+            User queryUser = userCrudService.findByUsername(username)
+                                .orElseThrow(() -> new IllegalArgumentException());
+
+            List<UserArtistCollectionEntry> collectionEntries = userCollectionsService.getArtistCollectionForUser(queryUser, collectionName);
+
+            String json = objectMapper.writeValueAsString(collectionEntries);
+
+            return new ResponseEntity<>(json, getAuthorizationHeader(user), HttpStatus.OK);
+
+        } catch (IllegalArgumentException ex) {
+
+            return new ResponseEntity<>("", getAuthorizationHeader(user), HttpStatus.BAD_REQUEST);
+
+        }
+
+    }
+
     @GetMapping("/getArtistCollections")
     ResponseEntity<String> getArtistCollections(@AuthenticationPrincipal final User user) throws JsonProcessingException {
 
@@ -210,7 +239,7 @@ final class SecuredRestController {
         return new ResponseEntity<>(json, getAuthorizationHeader(user), HttpStatus.OK);
     }
 
-    @GetMapping("/getArtistRecommendations")
+    @GetMapping("/getRecommendations")
     ResponseEntity<String> getRecommendations(@AuthenticationPrincipal final User user) throws JsonProcessingException {
 
         List<ArtistRecommendation> artistRecommendations = recommendationCrudRepo.findByUser(user.getUserPublicInfo());
@@ -222,12 +251,16 @@ final class SecuredRestController {
 
     @PostMapping("/recommendArtist")
     ResponseEntity<String> recommendArtist(@AuthenticationPrincipal final User user,
-                                           @RequestParam final String recommendToUsername,
-                                           @RequestBody final String artistJson) throws JsonProcessingException {
+                                           @RequestBody final String requestBodyStr) throws JsonProcessingException {
+
 
         try {
 
-            Artist artist = objectMapper.readValue(artistJson, Artist.class);
+            RecommendArtistRequestBody requestBody = objectMapper.readValue(requestBodyStr, RecommendArtistRequestBody.class);
+
+            String recommendToUsername = requestBody.getRecommendToUser();
+
+            Artist artist = requestBody.getArtist();
 
             List<Artist> repoArtists = artistCrudRepo.findByMbid(artist.getMbid());
 
@@ -247,6 +280,7 @@ final class SecuredRestController {
                                                 .user(recommendToUserPublicInfo)
                                                 .recommender(userPublicInfo)
                                                 .artist(artist)
+                                                .date(LocalDateTime.now())
                                                 .build();
 
             recommendationCrudRepo.save(artistRecommendation);

@@ -22,6 +22,7 @@ public class UserCollectionsService {
 
     /**
      * Create an artist collection.
+     *
      * @param user
      * @param collectionName
      * @throws IllegalArgumentException
@@ -42,6 +43,7 @@ public class UserCollectionsService {
 
     /**
      * Add an artist to existing artist collection.
+     *
      * @param artist
      * @param collection
      */
@@ -61,6 +63,7 @@ public class UserCollectionsService {
 
     /**
      * Add an artist to existing artist collection (find collection by String collectionName).
+     *
      * @param artist
      * @param collectionName
      */
@@ -81,5 +84,27 @@ public class UserCollectionsService {
     public List<UserArtistCollection> getArtistCollectionsForUser(final User user) {
 
         return userArtistCollectionCrudRepo.findByUser(user);
+    }
+
+    /**
+     * Get a list of entries for the given artist collection.
+     * @param user
+     * @param collectionName
+     * @return
+     * @throws IllegalArgumentException
+     */
+    public List<UserArtistCollectionEntry> getArtistCollectionForUser(final User user, final String collectionName) throws IllegalArgumentException {
+
+        List<UserArtistCollection> collections = userArtistCollectionCrudRepo.findByUserAndCollectionName(user, collectionName);
+
+        if (collections.isEmpty()) {
+            throw new IllegalArgumentException("Could not find collection for provided user and collectionName");
+        }
+
+        UserArtistCollection collection = collections.get(0);
+
+        List<UserArtistCollectionEntry> collectionEntries = userArtistCollectionEntryCrudRepo.findByUserArtistCollection(collection);
+
+        return collectionEntries;
     }
 }

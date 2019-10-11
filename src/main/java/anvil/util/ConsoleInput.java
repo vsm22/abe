@@ -2,13 +2,9 @@ package anvil.util;
 
 import anvil.config.CreateSearchIndexer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.security.auth.login.Configuration;
-import java.io.Console;
 import java.util.Scanner;
 
 @Service
@@ -38,7 +34,7 @@ public class ConsoleInput {
 
         switch(input) {
 
-            case "createSearchIndexer":
+            case "createSearchIndexer": case "csi":
                 System.out.println("Will attempt to call createSearchIndexer");
                 createSearchIndexer.createSearchIndexer();
                 break;
