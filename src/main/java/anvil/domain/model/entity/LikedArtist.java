@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Table(name = "favorite_artists")
-public class FavoriteArtist implements Serializable {
+public class LikedArtist implements Serializable {
 
     @Id
     @Column(name = "id")

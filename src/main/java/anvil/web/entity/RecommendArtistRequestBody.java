@@ -1,5 +1,6 @@
-package anvil.domain.model.entity;
+package anvil.web.entity;
 
+import anvil.domain.model.entity.Artist;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

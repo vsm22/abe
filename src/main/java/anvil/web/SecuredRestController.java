@@ -4,7 +4,7 @@ import anvil.domain.model.collection.artist.UserArtistCollection;
 import anvil.domain.model.collection.artist.UserArtistCollectionEntry;
 import anvil.domain.model.entity.*;
 import anvil.domain.model.entity.crud.ArtistCrudRepo;
-import anvil.domain.model.entity.crud.FavoriteArtistsCrudRepo;
+import anvil.domain.model.entity.crud.LikedArtistCrudRepo;
 import anvil.domain.model.entity.crud.FriendCrudRepo;
 import anvil.domain.model.entity.crud.RecommendationCrudRepo;
 import anvil.domain.services.UserCollectionsService;
@@ -14,11 +14,9 @@ import anvil.security.entities.user.crud.api.UserCrudService;
 import anvil.security.entities.user.entity.User;
 import anvil.security.entities.user.entity.UserAndToken;
 import anvil.security.entities.user.entity.UserPublicInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
+import anvil.web.entity.ArtistNameAndMbid;
+import anvil.web.entity.RecommendArtistRequestBody;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
@@ -74,7 +72,7 @@ final class SecuredRestController {
     RecommendationCrudRepo recommendationCrudRepo;
 
     @Autowired
-    FavoriteArtistsCrudRepo favoriteArtistsCrudRepo;
+    LikedArtistCrudRepo likedArtistCrudRepo;
 
     private void updateLastActive(final User user) {
 
@@ -332,39 +330,38 @@ final class SecuredRestController {
         return new ResponseEntity<>(json, getAuthorizationHeader(user), HttpStatus.OK);
     }
 
-    @GetMapping("/getFavoriteArtists")
-    public ResponseEntity<String> getFavoriteArtists(@AuthenticationPrincipal final User user) throws JsonProcessingException {
+    @GetMapping("/getLikedArtists")
+    public ResponseEntity<String> getLikedArtists(@AuthenticationPrincipal final User user) throws JsonProcessingException {
 
-        List<FavoriteArtist> favoriteArtistList = favoriteArtistsCrudRepo.findByUser(user.getUserPublicInfo());
+        List<LikedArtist> likedArtistList = likedArtistCrudRepo.findByUser(user.getUserPublicInfo());
 
-        String json = objectMapper.writeValueAsString(favoriteArtistList);
+        List<ArtistNameAndMbid> likedArtistNameAndMbidList = likedArtistList.stream()
+                .map(likedArtist -> ArtistNameAndMbid.builder()
+                            .artistName(likedArtist.getArtist().getArtistName())
+                            .artistMbid(likedArtist.getArtist().getMbid())
+                            .build())
+                .collect(Collectors.toList());
 
-        return new ResponseEntity<>(json, getAuthorizationHeader(user), HttpStatus.OK);
-    }
-
-    @GetMapping("/getFavoriteArtistMbidList")
-    public ResponseEntity<String> getFavoriteArtistMbidList(@AuthenticationPrincipal final User user) throws JsonProcessingException {
-
-        List<FavoriteArtist> favoriteArtistList = favoriteArtistsCrudRepo.findByUser(user.getUserPublicInfo());
-
-        List<String> mbidList = favoriteArtistList.stream()
-                                    .map(favoriteArtist -> favoriteArtist.getArtist().getMbid())
-                                    .collect(Collectors.toList());
-
-        String json = objectMapper.writeValueAsString(mbidList);
+        String json = objectMapper.writeValueAsString(likedArtistNameAndMbidList);
 
         return new ResponseEntity<>(json, getAuthorizationHeader(user), HttpStatus.OK);
     }
 
-    @PostMapping("/addFavoriteArtist")
-    public ResponseEntity<String> addFavoriteArtist(@AuthenticationPrincipal final User user,
+    @PostMapping("/addLikedArtist")
+    public ResponseEntity<String> addLikedArtist(@AuthenticationPrincipal final User user,
                                                     @RequestBody final String artistJson) throws IOException {
 
         try {
 
             Artist artist = objectMapper.readValue(artistJson, Artist.class);
 
-            List<Artist> artistList = artistCrudRepo.findByMbid(artist.getMbid());
+            List<Artist> artistList = null;
+
+            if (artist.getMbid() != null && !artist.getMbid().equals("")) {
+                artistList = artistCrudRepo.findByMbid(artist.getMbid());
+            } else {
+                artistList = artistCrudRepo.findByArtistName(artist.getArtistName());
+            }
 
             if (artistList.isEmpty()) {
                 artistCrudRepo.save(artist);
@@ -372,20 +369,20 @@ final class SecuredRestController {
                 artist = artistList.get(0);
             }
 
-            List<FavoriteArtist> favoriteArtistList = favoriteArtistsCrudRepo.findByUserAndArtist(user.getUserPublicInfo(), artist);
+            List<LikedArtist> likedArtistList = likedArtistCrudRepo.findByUserAndArtist(user.getUserPublicInfo(), artist);
 
-            if (!favoriteArtistList.isEmpty()) {
-                throw new EntityExistsException("Artist already added to favorites for this user");
+            if (!likedArtistList.isEmpty()) {
+                throw new EntityExistsException("Artist already liked by this user");
             }
 
-            FavoriteArtist favoriteArtist = FavoriteArtist.builder()
+            LikedArtist likedArtist = LikedArtist.builder()
                     .user(user.getUserPublicInfo())
                     .artist(artist)
                     .build();
 
-            favoriteArtistsCrudRepo.save(favoriteArtist);
+            likedArtistCrudRepo.save(likedArtist);
 
-            return getFavoriteArtistMbidList(user);
+            return getLikedArtists(user);
 
         } catch (EntityExistsException ex) {
 
@@ -393,33 +390,39 @@ final class SecuredRestController {
         }
     }
 
-    @PostMapping("/removeFavoriteArtist")
-    public ResponseEntity<String> removeFavoriteArtist(@AuthenticationPrincipal final User user,
+    @PostMapping("/removeLikedArtist")
+    public ResponseEntity<String> removeLikedArtist(@AuthenticationPrincipal final User user,
                                                     @RequestBody final String artistJson) throws IOException {
 
         try {
 
             Artist artist = objectMapper.readValue(artistJson, Artist.class);
 
-            List<Artist> artistList = artistCrudRepo.findByMbid(artist.getMbid());
+            List<Artist> artistList = null;
 
-            if (artistList.isEmpty()) {
-                artistCrudRepo.save(artist);
+            if (artist.getMbid() != null && !artist.getMbid().equals("")) {
+                artistList = artistCrudRepo.findByMbid(artist.getMbid());
             } else {
+                artistList = artistCrudRepo.findByArtistName(artist.getArtistName());
+            }
+
+            if (!artistList.isEmpty()) {
                 artist = artistList.get(0);
             }
 
-            List<FavoriteArtist> favoriteArtistList = favoriteArtistsCrudRepo.findByUserAndArtist(user.getUserPublicInfo(), artist);
+            artistCrudRepo.save(artist);
 
-            if (favoriteArtistList.isEmpty()) {
+            List<LikedArtist> likedArtistList = likedArtistCrudRepo.findByUserAndArtist(user.getUserPublicInfo(), artist);
+
+            if (likedArtistList.isEmpty()) {
                 throw new EntityExistsException("Artist is not in favorites for this user");
             }
 
-            FavoriteArtist favoriteArtist = favoriteArtistList.get(0);
+            LikedArtist likedArtist = likedArtistList.get(0);
 
-            favoriteArtistsCrudRepo.delete(favoriteArtist);
+            likedArtistCrudRepo.delete(likedArtist);
 
-            return getFavoriteArtistMbidList(user);
+            return getLikedArtists(user);
 
         } catch (EntityExistsException ex) {
 
