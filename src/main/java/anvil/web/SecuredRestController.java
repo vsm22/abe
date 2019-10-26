@@ -2,6 +2,7 @@ package anvil.web;
 
 import anvil.domain.model.collection.artist.UserArtistCollection;
 import anvil.domain.model.collection.artist.UserArtistCollectionEntry;
+import anvil.domain.model.collection.artist.crud.UserArtistCollectionCrudRepo;
 import anvil.domain.model.entity.*;
 import anvil.domain.model.entity.crud.ArtistCrudRepo;
 import anvil.domain.model.entity.crud.LikedArtistCrudRepo;
@@ -54,6 +55,9 @@ final class SecuredRestController {
 
     @Autowired
     UserCollectionsService userCollectionsService;
+
+    @Autowired
+    UserArtistCollectionCrudRepo userArtistCollectionCrudRepo;
 
     @Autowired
     UserCrudService userCrudService;
@@ -425,6 +429,30 @@ final class SecuredRestController {
             return getLikedArtists(user);
 
         } catch (EntityExistsException ex) {
+
+            return new ResponseEntity<>(ex.getMessage(), getAuthorizationHeader(user), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/deleteArtistCollection")
+    public ResponseEntity<String> deleteArtistCollection(@AuthenticationPrincipal final User user,
+                                                         @RequestBody final String collectionName) throws JsonProcessingException {
+
+        try {
+
+            List<UserArtistCollection> collectionList = userArtistCollectionCrudRepo.findByUserAndCollectionName(user, collectionName);
+
+            if (collectionList.isEmpty()) {
+                throw new EntityNotFoundException("Collection with this name does not exist for this user");
+            }
+
+            UserArtistCollection collection = collectionList.get(0);
+
+            userArtistCollectionCrudRepo.delete(collection);
+
+            return getArtistCollections(user);
+
+        } catch (EntityNotFoundException ex) {
 
             return new ResponseEntity<>(ex.getMessage(), getAuthorizationHeader(user), HttpStatus.BAD_REQUEST);
         }
