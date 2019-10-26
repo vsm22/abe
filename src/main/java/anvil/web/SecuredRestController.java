@@ -25,6 +25,7 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -128,9 +129,13 @@ final class SecuredRestController {
 
     @GetMapping("/createArtistCollection")
     ResponseEntity<String> createArtistCollection(@AuthenticationPrincipal final User user,
-                                                  @RequestParam("query") final String collectionName) throws JsonProcessingException {
+                                                  @RequestParam(name = "query", required = true) final String collectionName) throws JsonProcessingException {
 
         try {
+
+            if (collectionName.equals("")) {
+                throw new IllegalArgumentException("Collection name may not be blank");
+            }
 
             userCollectionsService.createArtistCollection(user, collectionName);
 
