@@ -2,17 +2,19 @@ package anvil.domain.model.collection.artist;
 
 import anvil.security.entities.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
-@Value
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Entity
 @Table(name = "user_artist_collections")
-public class UserArtistCollection {
+public class UserArtistCollection implements Serializable {
 
     @Id
     @Column(name = "id")

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 		"createArtistCollection",
 		"getArtistCollections",
 		"collections",
+		"collection",
 		"favorites",
 		"friends",
 		"recommendations"})

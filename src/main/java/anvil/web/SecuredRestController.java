@@ -3,6 +3,7 @@ package anvil.web;
 import anvil.domain.model.collection.artist.UserArtistCollection;
 import anvil.domain.model.collection.artist.UserArtistCollectionEntry;
 import anvil.domain.model.collection.artist.crud.UserArtistCollectionCrudRepo;
+import anvil.domain.model.collection.artist.crud.UserArtistCollectionEntryCrudRepo;
 import anvil.domain.model.entity.*;
 import anvil.domain.model.entity.crud.ArtistCrudRepo;
 import anvil.domain.model.entity.crud.LikedArtistCrudRepo;
@@ -32,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.Entity;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
@@ -59,6 +61,9 @@ final class SecuredRestController {
 
     @Autowired
     UserArtistCollectionCrudRepo userArtistCollectionCrudRepo;
+
+    @Autowired
+    UserArtistCollectionEntryCrudRepo userArtistCollectionEntryCrudRepo;
 
     @Autowired
     UserCrudService userCrudService;
@@ -151,15 +156,11 @@ final class SecuredRestController {
 
     @GetMapping("/getArtistCollection")
     ResponseEntity<String> getArtistCollection(@AuthenticationPrincipal final User user,
-                                               @RequestParam("username") final String username,
                                                @RequestParam("collectionName") final String collectionName) throws JsonProcessingException {
 
         try {
 
-            User queryUser = userCrudService.findByUsername(username)
-                                .orElseThrow(() -> new IllegalArgumentException());
-
-            List<UserArtistCollectionEntry> collectionEntries = userCollectionsService.getArtistCollectionForUser(queryUser, collectionName);
+            List<UserArtistCollectionEntry> collectionEntries = userCollectionsService.getArtistCollectionForUser(user, collectionName);
 
             String json = objectMapper.writeValueAsString(collectionEntries);
 
@@ -208,6 +209,39 @@ final class SecuredRestController {
         }
 
         return new ResponseEntity<String>("", getAuthorizationHeader(user), HttpStatus.OK);
+    }
+
+    @PostMapping("/removeArtistFromCollection")
+    ResponseEntity<String> removeArtistFromCollection(@AuthenticationPrincipal final User user,
+                                                 @RequestParam("collectionName") final String collectionName,
+                                                 @RequestParam("artistName") final String artistName) throws JsonProcessingException {
+
+
+        try {
+
+            List<UserArtistCollection> collectionList = userArtistCollectionCrudRepo.findByUserAndCollectionName(user, collectionName);
+
+            if (collectionList.isEmpty()) {
+                throw new EntityNotFoundException("Collection with this name does not exist for this user");
+            }
+
+            UserArtistCollection collection = collectionList.get(0);
+
+            List<UserArtistCollectionEntry> entryList = userArtistCollectionEntryCrudRepo.findByUserArtistCollection(collection);
+
+            UserArtistCollectionEntry targetEntry = entryList.stream()
+                                                .filter(entry -> entry.getArtist().getArtistName().equals(artistName))
+                                                .findFirst()
+                                                .orElseThrow(() -> new EntityNotFoundException("No entries found for this artist name for this collection"));
+
+            userArtistCollectionEntryCrudRepo.delete(targetEntry);
+
+            return getArtistCollection(user, collectionName);
+
+        } catch (EntityNotFoundException ex) {
+
+            return new ResponseEntity<String>(ex.getMessage(), getAuthorizationHeader(user), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/addUserToFriends")
@@ -304,39 +338,57 @@ final class SecuredRestController {
 
             recommendationCrudRepo.save(artistRecommendation);
 
+            return getFriendsArtistWasRecommendedTo(user, artist.getMbid(), artist.getArtistName());
+
         } catch (EntityNotFoundException | EntityExistsException ex) {
 
             return new ResponseEntity<>(ex.getMessage(), getAuthorizationHeader(user), HttpStatus.BAD_REQUEST);
 
         }
-
-        return new ResponseEntity<String>("", getAuthorizationHeader(user), HttpStatus.OK);
     }
 
     @GetMapping("/getFriendsArtistWasRecommendedTo")
     public ResponseEntity<String> getFriendsArtistWasRecommendedTo(@AuthenticationPrincipal final User user,
-                                                                   @RequestParam("artistMbid") final String artistMbid) throws IOException {
+                                                                   @RequestParam("artistMbid") final String artistMbid,
+                                                                   @RequestParam("artistName") final String artistName) throws IOException {
 
-        UserPublicInfo recommenderPublicInfo = user.getUserPublicInfo();
+        try {
 
-        Artist artist = artistCrudRepo.findByMbid(artistMbid)
-                            .stream()
-                            .findFirst()
-                            .orElseGet(() -> null);
+            UserPublicInfo recommenderPublicInfo = user.getUserPublicInfo();
 
-        if (artist == null) {
+            Artist artist = null;
+
+            if (!artistMbid.equals("")) {
+                artist = artistCrudRepo.findByMbid(artistMbid)
+                        .stream()
+                        .findFirst()
+                        .orElseThrow(() -> new EntityNotFoundException());
+            } else {
+                artist = artistCrudRepo.findByArtistName(artistName)
+                        .stream()
+                        .findFirst()
+                        .orElseThrow(() -> new EntityNotFoundException());
+            }
+
+            List<String> usernamesRecommendedTo = recommendationCrudRepo
+                    .findByRecommenderAndArtist(recommenderPublicInfo, artist)
+                    .stream()
+                    .map(recommendation -> recommendation.getUser().getUsername())
+                    .collect(Collectors.toList());
+
+            String json = objectMapper.writeValueAsString(usernamesRecommendedTo);
+
+            return new ResponseEntity<>(json, getAuthorizationHeader(user), HttpStatus.OK);
+
+        } catch (EntityNotFoundException ex) {
+
+            // We return an empty array and OK status even though exception was thrown
             return new ResponseEntity<>("[]", getAuthorizationHeader(user), HttpStatus.OK);
+
+        } catch (Exception ex) {
+
+            return new ResponseEntity<>("", getAuthorizationHeader(user), HttpStatus.resolve(500));
         }
-
-        List<String> usernamesRecommendedTo = recommendationCrudRepo
-                .findByRecommenderAndArtist(recommenderPublicInfo, artist)
-                .stream()
-                .map(recommendation -> recommendation.getUser().getUsername())
-                .collect(Collectors.toList());
-
-        String json = objectMapper.writeValueAsString(usernamesRecommendedTo);
-
-        return new ResponseEntity<>(json, getAuthorizationHeader(user), HttpStatus.OK);
     }
 
     @GetMapping("/getLikedArtists")
