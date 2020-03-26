@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.Gson;
+
 public class Album {
 	private String name;
 	private String artistName;
@@ -12,6 +14,8 @@ public class Album {
 	private String imageSmallUrl;
 	private String imageMediumUrl;
 	private String imageLargeUrl;
+	private String imageExtraLargeUrl;
+	private String imageMegaUrl;
 	private List<Tag> tags;
 	private List<Track> tracks;
 	
@@ -23,6 +27,8 @@ public class Album {
 		this.imageSmallUrl = (args.containsKey("imageSmallUrl")) ? (String) args.get("imageSmallUrl") : null;
 		this.imageMediumUrl = (args.containsKey("imageMediumUrl")) ? (String) args.get("imageMediumUrl") : null;
 		this.imageLargeUrl = (args.containsKey("imageLargeUrl")) ? (String) args.get("imageLargeUrl") : null;
+		this.imageExtraLargeUrl = (args.containsKey("imageExtraLargeUrl")) ? (String) args.get("imageExtraLargeUrl") : null;
+		this.imageMegaUrl = (args.containsKey("imageMegaUrl")) ? (String) args.get("imageMegaUrl") : null;
 		this.tags = (args.containsKey("tags")) ? (List<Tag>) args.get("tags") : null;
 		this.tracks = (args.containsKey("tracks")) ? (List<Track>) args.get("tracks") : null;
 	}
@@ -55,6 +61,14 @@ public class Album {
 		return imageLargeUrl;
 	}
 
+	public String getImageExtraLargeUrl() {
+		return imageExtraLargeUrl;
+	}
+
+	public String getImageMegaUrl() {
+		return imageMegaUrl;
+	}
+
 	public List<Tag> getTags() {
 		return tags;
 	}
@@ -62,49 +76,6 @@ public class Album {
 	public List<Track> getTracks() {
 		return tracks;
 	}
+
 	
-	public String toJson() {
-		String jsonResult = "";
-		
-		jsonResult += "{ "
-			+ "\"name\": " + "\"" + this.name + "\"";
-		if (this.artistName != null) jsonResult += ", \"artistName: " + "\"" + this.artistName + "\"";
-		if (this.url != null) jsonResult += ", \"url\": " + "\"" + this.url + "\"";
-		if (this.releaseDate != null) jsonResult += ", \"releaseDate\": " + "\"" + this.releaseDate.toString() + "\"";
-		if (this.imageSmallUrl != null) jsonResult += ", \"imageSmallUrl\": " + "\"" + this.imageSmallUrl + "\"";
-		if (this.imageMediumUrl != null) jsonResult += ", \"imageMediumUrl\": " + "\"" + this.imageMediumUrl + "\"";
-		if (this.imageLargeUrl != null) jsonResult += ", \"imageLargeUrl\": " + "\"" + this.imageLargeUrl + "\"";
-				
-		if (this.tags != null && tags.size() > 0) {
-			jsonResult += ", \"tags\": [ ";
-			
-	  		for (int i = 0; i < this.tags.size() - 1; i++) {
-	  			jsonResult += this.tags.get(i).toJson();
-	  			
-	  			if (i < this.tags.size() - 1) {
-	  				jsonResult += ", ";
-	  			}
-	  		}
-	  		
-	  		jsonResult += "] ";
-		}
-			
-		if (this.tracks != null && tracks.size() > 0) {
-			jsonResult += ", \"tracks\": [ ";
-			
-	  		for (int i = 0; i < this.tracks.size() - 1; i++) {
-	  			jsonResult += this.tracks.get(i).toJson();
-	  			
-	  			if (i < this.tracks.size() - 1) {
-	  				jsonResult += ", ";
-	  			}
-	  		}
-	  		
-	  		jsonResult += "] ";
-		}
-		
-		jsonResult += "}";
-		
-		return jsonResult;
-	} 
 }

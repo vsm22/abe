@@ -2,6 +2,8 @@ package com.vsm22.scrobbletree.data;
 
 import java.util.Map;
 
+import com.google.gson.Gson;
+
 public class Bio {
 	private String summary;
 	private String content;
@@ -20,6 +22,10 @@ public class Bio {
 	}
 	
 	public String toJson() {
+		return new Gson().toJson(this);
+	}
+	
+	/*public String toJson() {
 		String jsonResult = "";
 		
 		jsonResult += "{ ";
@@ -32,5 +38,5 @@ public class Bio {
 		jsonResult += "}";
 		
 		return jsonResult;
-	}
+	}*/
 }

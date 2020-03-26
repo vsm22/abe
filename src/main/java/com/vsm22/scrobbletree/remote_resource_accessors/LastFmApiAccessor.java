@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 import com.vsm22.scrobbletree.data.Artist;
 import com.vsm22.scrobbletree.data.ArtistSearchResult;
 import com.vsm22.scrobbletree.data.Tag;
+import com.vsm22.scrobbletree.remote_resource_accessors.RemoteResourceAttributeLoader;
 
 public class LastFmApiAccessor {	
 	private static String apiKey;
@@ -30,13 +31,13 @@ public class LastFmApiAccessor {
 	
 	static {
 		try {
-  		RemoteResourceAttributeLoader loader = new RemoteResourceAttributeLoader("src/main/resources/remote-resources.xml");
-  		Element lastFmResourceSpec = loader.getResourceSpec("last.fm"); 
-  		
-  		apiKey = lastFmResourceSpec.getElementsByTagName("resource-key").item(0).getTextContent();
-  		apiSharedSecret = lastFmResourceSpec.getElementsByTagName("resource-shared-secret").item(0).getTextContent();
-  		apiUrl = lastFmResourceSpec.getElementsByTagName("resource-url").item(0).getTextContent();
-  		apiUsername = lastFmResourceSpec.getElementsByTagName("resource-username").item(0).getTextContent();
+	  		RemoteResourceAttributeLoader loader = new RemoteResourceAttributeLoader("src/main/resources/remote-resources.xml");
+	  		Element lastFmResourceSpec = loader.getResourceSpec("last.fm"); 
+	  		
+	  		apiKey = lastFmResourceSpec.getElementsByTagName("resource-key").item(0).getTextContent();
+	  		apiSharedSecret = lastFmResourceSpec.getElementsByTagName("resource-shared-secret").item(0).getTextContent();
+	  		apiUrl = lastFmResourceSpec.getElementsByTagName("resource-url").item(0).getTextContent();
+	  		apiUsername = lastFmResourceSpec.getElementsByTagName("resource-username").item(0).getTextContent();
 		} catch (Exception e) {
 			System.err.println(e);
 		}

@@ -2,6 +2,8 @@ package com.vsm22.scrobbletree.data;
 
 import java.util.Map;
 
+import com.google.gson.Gson;
+
 public class Tag {
 	private String name;
 	private String url;
@@ -20,6 +22,10 @@ public class Tag {
 	}
 	
 	public String toJson() {
+		return new Gson().toJson(this);
+	}
+	
+	/*public String toJson() {
 		String jsonResult = "";
 		
 		jsonResult += "{ "
@@ -28,5 +34,5 @@ public class Tag {
 			+ "} ";
 		
 		return jsonResult;
-	}
+	}*/
 }

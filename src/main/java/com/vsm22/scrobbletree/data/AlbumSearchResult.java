@@ -3,6 +3,8 @@ package com.vsm22.scrobbletree.data;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.Gson;
+
 public class AlbumSearchResult {
 	private List<Album> albumList;
 	
@@ -15,6 +17,10 @@ public class AlbumSearchResult {
 	}
 	
 	public String toJson() {
+		return new Gson().toJson(this);
+	}
+	
+	/*public String toJson() {
 		String jsonResult = "";
 		
 		jsonResult += "{ "
@@ -32,5 +38,5 @@ public class AlbumSearchResult {
 			+ "}";
 		
 		return jsonResult;
-	}
+	}*/
 }

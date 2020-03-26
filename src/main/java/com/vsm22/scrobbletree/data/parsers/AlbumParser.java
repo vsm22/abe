@@ -29,6 +29,8 @@ public class AlbumParser {
 		Element imageSmallUrlElement = (imageNodeList.getLength() > 0) ? (Element) imageNodeList.item(0) : null;
 		Element imageMediumUrlElement = (imageNodeList.getLength() > 1) ? (Element) imageNodeList.item(1) : null;
 		Element imageLargeUrlElement = (imageNodeList.getLength() > 2) ? (Element) imageNodeList.item(2) : null;
+		Element imageExtraLargeUrlElement = (imageNodeList.getLength() > 3) ? (Element) imageNodeList.item(3) : null;
+		Element imageMegaUrlElement = (imageNodeList.getLength() > 4) ? (Element) imageNodeList.item(4) : null;
 		Element tagListElement = (tagNodeList.getLength() > 0) ? (Element) tagNodeList.item(0) : null;
 		Element trackListElement = (trackNodeList.getLength() > 0) ? (Element) trackNodeList.item(0) : null;
  		
@@ -39,6 +41,8 @@ public class AlbumParser {
 		String imageSmallUrl = (imageSmallUrlElement != null) ? imageSmallUrlElement.getTextContent() : null;
 		String imageMediumUrl = (imageSmallUrlElement != null) ? imageMediumUrlElement.getTextContent() : null;
 		String imageLargeUrl = (imageSmallUrlElement != null) ? imageLargeUrlElement.getTextContent() : null;
+		String imageExtraLargeUrl = (imageExtraLargeUrlElement != null) ? imageExtraLargeUrlElement.getTextContent() : null;
+		String imageMegaUrl = (imageMegaUrlElement != null) ? imageMegaUrlElement.getTextContent() : null;
 		List<Tag> tags = (tagListElement != null) ? TagListParser.parse(tagListElement) : null;
 		List<Track> tracks = (trackListElement != null) ? TrackListParser.parse(trackListElement) : null;
 		

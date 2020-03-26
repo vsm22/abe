@@ -3,6 +3,8 @@ package com.vsm22.scrobbletree.data;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.Gson;
+
 public class Track {
 	private String name;
 	private String url;
@@ -45,6 +47,10 @@ public class Track {
 	}
 
 	public String toJson() {
+		return new Gson().toJson(this);
+	}
+	
+	/*public String toJson() {
 		String jsonResult = "";
 		
 		jsonResult += "{ "
@@ -71,5 +77,5 @@ public class Track {
 		jsonResult += "}";
 		
 		return jsonResult;
-	}
+	}*/
 }
